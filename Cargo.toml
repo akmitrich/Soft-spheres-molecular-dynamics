@@ -3,4 +3,5 @@
 members = [
     "mol",
     "d_vector",
+    "mol_job",
 ]

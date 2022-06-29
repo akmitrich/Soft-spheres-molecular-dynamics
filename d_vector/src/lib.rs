@@ -1,4 +1,4 @@
-use std::ops::{AddAssign, Add};
+use std::ops::{AddAssign, Add, Mul, MulAssign};
 
 #[allow(unused, dead_code)]
 
@@ -12,6 +12,10 @@ pub struct DVector<const D: usize> {
 impl<const D: usize> DVector<D> {
     pub fn components(&self) -> &[Real; D] {
         &self.components
+    }
+
+    pub fn square_length(&self) -> Real {
+        self * self
     }
 }
 
@@ -37,16 +41,14 @@ impl<const D: usize> From<[Real; D]> for DVector<D> {
 
 impl<const D: usize> AddAssign for DVector<D> {
     fn add_assign(&mut self, rhs: Self) {
-        for i in 0..D {
-            self.components[i] += rhs.components()[i];
-        }
+        self.add_assign(&rhs);
     }
 }
 
 impl<const D: usize> AddAssign<&Self> for DVector<D> {
     fn add_assign(&mut self, rhs: &Self) {
-        for i in 0..D {
-            self.components[i] += rhs.components()[i];
+        for (i, c) in self.components.iter_mut().enumerate() {
+            c.add_assign(rhs.components()[i]);
         }
     }
 }
@@ -55,7 +57,7 @@ impl<const D: usize> Add for DVector<D> {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        let mut sum = self.clone();
+        let mut sum = self;
         sum += rhs;
         sum
     }
@@ -68,6 +70,41 @@ impl<const D: usize> Add for &DVector<D> {
         let mut sum: DVector<D> = self.clone();
         sum += rhs;
         sum
+    }
+}
+
+impl<const D: usize> Mul<DVector<D>> for Real {
+    type Output = DVector<D>;
+
+    fn mul(self, rhs: DVector<D>) -> Self::Output {
+        let mut components = *rhs.components();
+        for c in components.iter_mut() {
+            c.mul_assign(self);
+        }
+        Self::Output { components }
+    }
+}
+
+impl<const D: usize> Mul<&DVector<D>> for &DVector<D> {
+    type Output = Real;
+
+    fn mul(self, rhs: &DVector<D>) -> Self::Output {
+        self.components().iter()
+        .zip(rhs.components())
+        .map(|(a,b)| *a * *b)
+        .sum()
+    }
+}
+
+impl<const D: usize> Mul<&DVector<D>> for Real {
+    type Output = DVector<D>;
+
+    fn mul(self, rhs: &DVector<D>) -> Self::Output {
+        let mut components = *rhs.components();
+        for c in components.iter_mut() {
+            c.mul_assign(self);
+        }
+        Self::Output { components }
     }
 }
 
@@ -103,5 +140,25 @@ mod tests {
         assert_eq!(&[5., 7., 9.], (&a + &b).components());
         assert_eq!(&[5., 7., 9.], (&b + &a).components());
         assert_eq!(&[5., 7., 9.], (a + b).components());
+    }
+
+    #[test]
+    fn number_mul_vector() {
+        let v = DVector::from([1., 2., 3.]);
+        assert_eq!(&[1., 2., 3.], (1. * &v).components());
+        assert_eq!(&[-1., -2., -3.], (-1. * &v).components());
+        assert_eq!(&[1.5, 3., 4.5], (1.5 * v).components());
+    }
+
+    #[test]
+    fn mul_square() {
+        let a = DVector::from([1., 2., 3.]);
+        let b = DVector::from([4., 5., 6.]);
+        assert_eq!(32., &a * &b);
+        assert_eq!(32., &b * &a);
+        assert_eq!(14., &a * &a);
+        assert_eq!(77., &b * &b);
+        assert_eq!(&a * &a, a.square_length());
+        assert_eq!(&b * &b, b.square_length());
     }
 }
