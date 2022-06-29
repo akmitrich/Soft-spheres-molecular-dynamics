@@ -1,4 +1,4 @@
-#[allow(unused, dead_code)]
+#![allow(unused, dead_code)]
 
 use d_vector::DVector;
 
