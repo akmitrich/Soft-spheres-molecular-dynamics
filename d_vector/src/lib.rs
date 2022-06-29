@@ -55,13 +55,9 @@ impl<const D: usize> Add for DVector<D> {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        let mut components = [0 as Real; D];
-        self.components().iter()
-        .zip(rhs.components().iter())
-        .map(|(a, b)| a + b)
-        .enumerate()
-        .for_each(|(i, c)| components[i] = c);
-        Self::Output { components }
+        let mut sum = self.clone();
+        sum += rhs;
+        sum
     }
 }
 
@@ -69,13 +65,9 @@ impl<const D: usize> Add for &DVector<D> {
     type Output = DVector<D>;
 
     fn add(self, rhs: Self) -> Self::Output {
-        let mut components = [0 as Real; D];
-        self.components().iter()
-        .zip(rhs.components().iter())
-        .map(|(a, b)| a + b)
-        .enumerate()
-        .for_each(|(i, c)| components[i] = c);
-        Self::Output { components }
+        let mut sum: DVector<D> = self.clone();
+        sum += rhs;
+        sum
     }
 }
 
@@ -108,6 +100,8 @@ mod tests {
         let a = DVector::from([1., 2., 3.]);
         let b = DVector::from([4., 5., 6.]);
         assert_eq!(&[2., 4., 6.], (&a + &a).components());
+        assert_eq!(&[5., 7., 9.], (&a + &b).components());
+        assert_eq!(&[5., 7., 9.], (&b + &a).components());
         assert_eq!(&[5., 7., 9.], (a + b).components());
     }
 }
