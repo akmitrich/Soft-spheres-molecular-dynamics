@@ -27,11 +27,11 @@ impl<const D: usize> Region<D> {
     }
 
     fn is_above(&self, position: &DVector<D>, index: usize) -> bool {
-        position.components()[i] >= self.inner.components()[i] / 2.
+        position.components()[index] >= self.inner.components()[index] / 2.
     }
 
     fn is_below(&self, position: &DVector<D>, index: usize) -> bool {
-        position.components()[i] < -self.inner.components()[i] / 2.
+        position.components()[index] < -self.inner.components()[index] / 2.
     }
 }
 

@@ -1,6 +1,6 @@
+#![allow(unused, dead_code)]
 use std::ops::{AddAssign, Add, Mul, MulAssign};
 
-#[allow(unused, dead_code)]
 
 pub type Real = f32;
 
