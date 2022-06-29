@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 d_vector = {path = "../d_vector"}
+mol_job = {path = "../mol_job"}

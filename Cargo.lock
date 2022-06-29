@@ -11,6 +11,7 @@ name = "mol"
 version = "0.1.0"
 dependencies = [
  "d_vector",
+ "mol_job",
 ]
 
 [[package]]
