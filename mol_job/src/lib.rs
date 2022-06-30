@@ -1,5 +1,5 @@
-pub mod job;
 pub mod boundaries;
+pub mod job;
 
 #[cfg(test)]
 mod tests {

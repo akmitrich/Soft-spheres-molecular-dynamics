@@ -1,6 +1,5 @@
 #![allow(unused, dead_code)]
-use std::ops::{AddAssign, Add, Mul, MulAssign};
-
+use std::ops::{Add, AddAssign, Mul, MulAssign};
 
 pub type Real = f32;
 
@@ -89,10 +88,11 @@ impl<const D: usize> Mul<&DVector<D>> for &DVector<D> {
     type Output = Real;
 
     fn mul(self, rhs: &DVector<D>) -> Self::Output {
-        self.components().iter()
-        .zip(rhs.components())
-        .map(|(a,b)| *a * *b)
-        .sum()
+        self.components()
+            .iter()
+            .zip(rhs.components())
+            .map(|(a, b)| *a * *b)
+            .sum()
     }
 }
 
@@ -129,7 +129,7 @@ mod tests {
         assert_eq!(&[4.; 3], v.components());
         let b = DVector::from([0., 1.5, 6.3]);
         v += &b;
-        assert_eq!(&[4., 5.5, 10.3], v.components());    
+        assert_eq!(&[4., 5.5, 10.3], v.components());
     }
 
     #[test]

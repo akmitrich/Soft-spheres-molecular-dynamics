@@ -1,6 +1,6 @@
 #![allow(unused, dead_code)]
 
-use std::ops::AddAssign;
+use std::ops::{AddAssign, SubAssign};
 
 use d_vector::{DVector, Real};
 
@@ -18,7 +18,7 @@ impl<const D: usize> Region<D> {
         let mut shift = [0 as Real; D];
         for (i, s) in shift.iter_mut().enumerate() {
             if self.is_above(position, i) {
-                s.add_assign(-self.inner.components()[i]);
+                s.sub_assign(self.inner.components()[i]);
             } else if self.is_below(position, i) {
                 s.add_assign(self.inner.components()[i]);
             }
@@ -45,5 +45,9 @@ mod tests {
         let mut p = DVector::from([1.5, -4.]);
         region.wrap(&mut p);
         assert_eq!(&[0.5, 1.], p.components());
+        let region = Region::new([1., 5.]);
+        let mut p = DVector::from([0.2, -1.5]);
+        region.wrap(&mut p);
+        assert_eq!(&[0.2, -1.5], p.components());
     }
 }

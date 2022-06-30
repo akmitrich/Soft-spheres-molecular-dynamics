@@ -1,7 +1,9 @@
 #![allow(unused, dead_code)]
 
-use d_vector::{DVector, Real};
+use std::ops::AddAssign;
+
 use crate::boundaries::Region;
+use d_vector::{DVector, Real};
 
 #[derive(Debug)]
 pub struct Job<const D: usize> {
@@ -45,9 +47,9 @@ impl<const D: usize> Job<D> {
 
 impl<const D: usize> Default for Job<D> {
     fn default() -> Self {
-        Self { 
-            pos: vec![], 
-            vel: vec![], 
+        Self {
+            pos: vec![],
+            vel: vec![],
             acc: vec![],
             boundaries: Region::new([50.; D]),
             delta_t: 1e-3,
@@ -73,6 +75,10 @@ impl<const D: usize> Job<D> {
             }
         }
     }
+
+    pub fn get_boundaries(&self) -> &Region<D> {
+        &self.boundaries
+    }
 }
 
 impl<const D: usize> Job<D> {
@@ -86,11 +92,32 @@ impl<const D: usize> Job<D> {
     fn single_step(&mut self) {
         self.step_count += 1;
         self.t_now = self.step_count as Real * self.delta_t;
+        self.leapfrog_begin();
         self.apply_boundary_conditions();
+        self.leapfrog_end();
+    }
+
+    fn leapfrog_begin(&mut self) {
+        let delta_t = self.delta_t;
+        self.calc_vel_for_half_step();
+        self.pos.iter_mut()
+            .zip(self.vel.iter())
+            .for_each(|(p, v)| p.add_assign(delta_t * v));
     }
 
     fn apply_boundary_conditions(&mut self) {
         self.pos.iter_mut()
-        .for_each(|p| self.boundaries.wrap(p));
+            .for_each(|position| self.boundaries.wrap(position));
+    }
+
+    fn leapfrog_end(&mut self) {
+        self.calc_vel_for_half_step();
+    }
+
+    fn calc_vel_for_half_step(&mut self) {
+        let half_delta_t = self.delta_t / 2.;
+        self.vel.iter_mut()
+            .zip(self.acc.iter())
+            .for_each(|(v, a)| v.add_assign(half_delta_t * a));
     }
 }
