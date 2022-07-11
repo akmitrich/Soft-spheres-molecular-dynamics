@@ -1,7 +1,8 @@
 #![allow(unused, dead_code)]
 
-use d_vector::{DVector, Real};
 use std::{cell::RefMut, ops::AddAssign};
+use d_vector::{DVector, Real};
+use crate::potential::PotentialEnergy;
 
 pub trait Config {
     fn step_begin(&self);
@@ -15,12 +16,6 @@ pub trait State<const D: usize> {
     fn get_pos(&self) -> RefMut<Vec<DVector<D>>>;
     fn get_vel(&self) -> RefMut<Vec<DVector<D>>>;
     fn get_acc(&self) -> RefMut<Vec<DVector<D>>>;
-}
-
-pub trait PotentialEnergy<const D: usize> {
-    fn compute_forces(&self, pos: &[DVector<D>], acc: &mut [DVector<D>]);
-    fn u_sum(&self);
-    fn virial_sum(&self);
 }
 
 pub trait BoundaryConditions<const D: usize> {
