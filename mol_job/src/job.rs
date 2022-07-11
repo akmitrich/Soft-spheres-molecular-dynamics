@@ -100,13 +100,15 @@ impl<const D: usize> Job<D> {
     fn leapfrog_begin(&mut self) {
         let delta_t = self.delta_t;
         self.calc_vel_for_half_step();
-        self.pos.iter_mut()
+        self.pos
+            .iter_mut()
             .zip(self.vel.iter())
             .for_each(|(p, v)| p.add_assign(delta_t * v));
     }
 
     fn apply_boundary_conditions(&mut self) {
-        self.pos.iter_mut()
+        self.pos
+            .iter_mut()
             .for_each(|position| self.boundaries.wrap(position));
     }
 
@@ -116,7 +118,8 @@ impl<const D: usize> Job<D> {
 
     fn calc_vel_for_half_step(&mut self) {
         let half_delta_t = self.delta_t / 2.;
-        self.vel.iter_mut()
+        self.vel
+            .iter_mut()
             .zip(self.acc.iter())
             .for_each(|(v, a)| v.add_assign(half_delta_t * a));
     }

@@ -1,5 +1,6 @@
 pub mod boundaries;
 pub mod job;
+pub mod verlet;
 
 #[cfg(test)]
 mod tests {

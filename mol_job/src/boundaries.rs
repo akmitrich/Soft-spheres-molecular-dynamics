@@ -11,7 +11,9 @@ pub struct Region<const D: usize> {
 
 impl<const D: usize> Region<D> {
     pub fn new(size: [Real; D]) -> Self {
-        Self { inner: DVector::from(size) }
+        Self {
+            inner: DVector::from(size),
+        }
     }
 
     pub fn wrap(&self, position: &mut DVector<D>) {
