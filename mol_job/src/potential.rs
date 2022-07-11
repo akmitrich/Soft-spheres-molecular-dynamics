@@ -4,8 +4,8 @@ use d_vector::{DVector, Real};
 
 pub trait PotentialEnergy<const D: usize> {
     fn compute_forces(&self, pos: &[DVector<D>], acc: &mut [DVector<D>]);
-    fn u_sum(&self);
-    fn virial_sum(&self);
+    fn u_sum(&self) -> Real;
+    fn virial_sum(&self) -> Real;
 }
 
 #[derive(Debug)]
@@ -27,14 +27,14 @@ impl Default for LennardJones {
 
 impl<const D: usize> PotentialEnergy<D> for LennardJones {
     fn compute_forces(&self, pos: &[DVector<D>], acc: &mut [DVector<D>]) {
-        todo!()
+        
     }
 
-    fn u_sum(&self) {
-        todo!()
+    fn u_sum(&self) -> Real {
+        0.0
     }
 
-    fn virial_sum(&self) {
-        todo!()
+    fn virial_sum(&self) -> Real {
+        0.0
     }
 }
