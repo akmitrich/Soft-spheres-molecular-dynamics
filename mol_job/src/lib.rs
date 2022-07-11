@@ -1,6 +1,7 @@
 pub mod boundaries;
 pub mod job;
 pub mod potential;
+pub mod prop;
 pub mod verlet;
 
 #[cfg(test)]

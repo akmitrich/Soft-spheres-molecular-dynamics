@@ -2,7 +2,7 @@
 
 use std::{cell::RefMut, ops::AddAssign};
 use d_vector::{DVector, Real};
-use crate::potential::PotentialEnergy;
+use crate::{boundaries::BoundaryConditions, potential::PotentialEnergy, prop::Props};
 
 pub trait Config {
     fn step_begin(&self);
@@ -16,18 +16,6 @@ pub trait State<const D: usize> {
     fn get_pos(&self) -> RefMut<Vec<DVector<D>>>;
     fn get_vel(&self) -> RefMut<Vec<DVector<D>>>;
     fn get_acc(&self) -> RefMut<Vec<DVector<D>>>;
-}
-
-pub trait BoundaryConditions<const D: usize> {
-    fn wrap(&self, pos: &mut DVector<D>);
-}
-
-pub trait Props<const D: usize> {
-    fn reset(&self);
-    fn eval_props(&self, u: &dyn PotentialEnergy<D>, pos: &[DVector<D>], vel: &[DVector<D>]);
-    fn accum_props(&self);
-    fn avg_props(&self);
-    fn summarize(&self) {}
 }
 
 pub fn single_step<const D: usize>(

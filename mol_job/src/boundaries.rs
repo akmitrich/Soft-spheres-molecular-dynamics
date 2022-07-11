@@ -1,8 +1,12 @@
 #![allow(unused, dead_code)]
 
 use std::ops::{AddAssign, SubAssign};
-
 use d_vector::{DVector, Real};
+use crate::verlet;
+
+pub trait BoundaryConditions<const D: usize> {
+    fn wrap(&self, pos: &mut DVector<D>);
+}
 
 #[derive(Debug)]
 pub struct Region<const D: usize> {
@@ -16,7 +20,17 @@ impl<const D: usize> Region<D> {
         }
     }
 
-    pub fn wrap(&self, position: &mut DVector<D>) {
+    fn is_above(&self, position: &DVector<D>, index: usize) -> bool {
+        position.components()[index] >= self.inner.components()[index] / 2.
+    }
+
+    fn is_below(&self, position: &DVector<D>, index: usize) -> bool {
+        position.components()[index] < -self.inner.components()[index] / 2.
+    }
+}
+
+impl<const D: usize> BoundaryConditions<D> for Region<D> {
+    fn wrap(&self, position: &mut DVector<D>) {
         let mut shift = [0 as Real; D];
         for (i, s) in shift.iter_mut().enumerate() {
             if self.is_above(position, i) {
@@ -26,15 +40,7 @@ impl<const D: usize> Region<D> {
             }
         }
         position.add_assign(DVector::from(shift));
-    }
-
-    fn is_above(&self, position: &DVector<D>, index: usize) -> bool {
-        position.components()[index] >= self.inner.components()[index] / 2.
-    }
-
-    fn is_below(&self, position: &DVector<D>, index: usize) -> bool {
-        position.components()[index] < -self.inner.components()[index] / 2.
-    }
+    }    
 }
 
 #[cfg(test)]
