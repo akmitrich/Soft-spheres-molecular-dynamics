@@ -1,8 +1,8 @@
 #![allow(unused, dead_code)]
 
-use std::ops::{AddAssign, SubAssign};
-use d_vector::{DVector, Real};
 use crate::verlet;
+use d_vector::{DVector, Real};
+use std::ops::{AddAssign, SubAssign};
 
 pub trait BoundaryConditions<const D: usize> {
     fn wrap(&self, pos: &mut DVector<D>);
@@ -40,7 +40,7 @@ impl<const D: usize> BoundaryConditions<D> for Region<D> {
             }
         }
         position.add_assign(DVector::from(shift));
-    }    
+    }
 }
 
 #[cfg(test)]

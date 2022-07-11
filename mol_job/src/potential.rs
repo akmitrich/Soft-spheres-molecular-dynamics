@@ -17,7 +17,11 @@ pub struct LennardJones {
 
 impl Default for LennardJones {
     fn default() -> Self {
-        Self { r_cut: 2.5, u_sum: 0.0, v_sum: 0.0 }
+        Self {
+            r_cut: 2.5,
+            u_sum: 0.0,
+            v_sum: 0.0,
+        }
     }
 }
 

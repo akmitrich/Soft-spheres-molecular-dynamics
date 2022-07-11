@@ -1,6 +1,9 @@
 #![allow(unused, dead_code)]
 
-use std::{ops::AddAssign, cell::{RefMut, RefCell, Cell}};
+use std::{
+    cell::{Cell, RefCell, RefMut},
+    ops::AddAssign,
+};
 
 use crate::{boundaries::Region, potential::LennardJones, prop::TrivialProps, verlet};
 use d_vector::{DVector, Real};

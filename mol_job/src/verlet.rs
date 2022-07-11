@@ -1,8 +1,8 @@
 #![allow(unused, dead_code)]
 
-use std::{cell::RefMut, ops::AddAssign};
-use d_vector::{DVector, Real};
 use crate::{boundaries::BoundaryConditions, potential::PotentialEnergy, prop::Props};
+use d_vector::{DVector, Real};
+use std::{cell::RefMut, ops::AddAssign};
 
 pub trait Config {
     fn step_begin(&self);
@@ -23,7 +23,7 @@ pub fn single_step<const D: usize>(
     state: &dyn State<D>,
     boundaries: &dyn BoundaryConditions<D>,
     potential_energy: &dyn PotentialEnergy<D>,
-    props: &dyn Props<D>
+    props: &dyn Props<D>,
 ) {
     let mut pos = state.get_pos();
     let mut vel = state.get_vel();
@@ -45,15 +45,17 @@ pub fn single_step<const D: usize>(
 }
 
 fn apply_boundary_conditions<const D: usize>(b: &dyn BoundaryConditions<D>, p: &mut [DVector<D>]) {
-    p
-    .iter_mut()
-    .for_each(|position| b.wrap(position));
+    p.iter_mut().for_each(|position| b.wrap(position));
 }
 
-fn leapfrog_begin<const D: usize>(dt: Real, p: &mut [DVector<D>], v: &mut [DVector<D>], a: &[DVector<D>]) {
+fn leapfrog_begin<const D: usize>(
+    dt: Real,
+    p: &mut [DVector<D>],
+    v: &mut [DVector<D>],
+    a: &[DVector<D>],
+) {
     calc_vel_for_half_step(dt, v, a);
-    p
-        .iter_mut()
+    p.iter_mut()
         .zip(v.iter())
         .for_each(|(p, v)| p.add_assign(dt * v));
 }
@@ -64,8 +66,7 @@ fn leapfrog_end<const D: usize>(dt: Real, v: &mut [DVector<D>], a: &[DVector<D>]
 
 fn calc_vel_for_half_step<const D: usize>(dt: Real, v: &mut [DVector<D>], a: &[DVector<D>]) {
     let half_delta_t = dt / 2.;
-    v
-        .iter_mut()
+    v.iter_mut()
         .zip(a.iter())
         .for_each(|(v, a)| v.add_assign(half_delta_t * a));
 }
