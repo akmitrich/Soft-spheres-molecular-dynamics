@@ -5,7 +5,12 @@ use std::{
     ops::AddAssign,
 };
 
-use crate::{boundaries::Region, potential::LennardJones, prop::TrivialProps, verlet};
+use crate::{
+    boundaries::{BoundaryConditions, Region},
+    potential::{LennardJones, PotentialEnergy},
+    prop::{TrivialProps, Props},
+    verlet,
+};
 use d_vector::{DVector, Real};
 
 #[derive(Debug)]
@@ -13,9 +18,9 @@ pub struct Job<const D: usize> {
     pos: RefCell<Vec<DVector<D>>>,
     vel: RefCell<Vec<DVector<D>>>,
     acc: RefCell<Vec<DVector<D>>>,
-    boundaries: Region<D>,
-    potential: LennardJones,
-    props: TrivialProps<D>,
+    boundaries: Box<dyn BoundaryConditions<D>>,
+    potential: Box<dyn PotentialEnergy<D>>,
+    props: Box<dyn Props<D>>,
     step_count: Cell<usize>,
     step_limit: usize,
     step_avg: usize,
@@ -52,9 +57,9 @@ impl<const D: usize> Default for Job<D> {
             pos: RefCell::new(vec![]),
             vel: RefCell::new(vec![]),
             acc: RefCell::new(vec![]),
-            boundaries: Region::new([50.; D]),
-            potential: Default::default(),
-            props: Default::default(),
+            boundaries: Box::new(Region::new([50.; D])),
+            potential: Box::new(LennardJones::default()),
+            props: Box::new(TrivialProps::default()),
             step_count: Cell::new(0),
             step_limit: 10,
             step_avg: 10,
@@ -66,7 +71,13 @@ impl<const D: usize> Default for Job<D> {
 impl<const D: usize> Job<D> {
     pub fn run(&mut self) {
         while self.more_cycles {
-            verlet::single_step(self, self, &self.boundaries, &self.potential, &self.props);
+            verlet::single_step(
+                self,
+                self,
+                self.boundaries.as_ref(),
+                self.potential.as_ref(),
+                self.props.as_ref(),
+            );
             if self.step_count.get() >= self.step_limit {
                 self.more_cycles = false;
             }

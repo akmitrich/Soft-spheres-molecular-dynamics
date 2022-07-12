@@ -2,9 +2,12 @@
 
 use crate::verlet;
 use d_vector::{DVector, Real};
-use std::ops::{AddAssign, SubAssign};
+use std::{
+    fmt::Debug,
+    ops::{AddAssign, SubAssign},
+};
 
-pub trait BoundaryConditions<const D: usize> {
+pub trait BoundaryConditions<const D: usize>: Debug {
     fn wrap(&self, pos: &mut DVector<D>);
 }
 

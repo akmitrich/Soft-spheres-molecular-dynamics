@@ -1,9 +1,11 @@
 #![allow(unused, dead_code)]
 
+use std::fmt::Debug;
+
 use crate::potential::PotentialEnergy;
 use d_vector::DVector;
 
-pub trait Props<const D: usize> {
+pub trait Props<const D: usize>: Debug {
     fn reset(&self);
     fn eval_props(&self, u: &dyn PotentialEnergy<D>, pos: &[DVector<D>], vel: &[DVector<D>]);
     fn accum_props(&self);

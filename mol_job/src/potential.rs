@@ -1,8 +1,9 @@
 #![allow(unused, dead_code)]
 
 use d_vector::{DVector, Real};
+use std::{cell::Cell, fmt::Debug};
 
-pub trait PotentialEnergy<const D: usize> {
+pub trait PotentialEnergy<const D: usize>: Debug {
     fn compute_forces(&self, pos: &[DVector<D>], acc: &mut [DVector<D>]);
     fn u_sum(&self) -> Real;
     fn virial_sum(&self) -> Real;
@@ -11,30 +12,28 @@ pub trait PotentialEnergy<const D: usize> {
 #[derive(Debug)]
 pub struct LennardJones {
     r_cut: Real,
-    u_sum: Real,
-    v_sum: Real,
+    u_sum: Cell<Real>,
+    v_sum: Cell<Real>,
 }
 
 impl Default for LennardJones {
     fn default() -> Self {
         Self {
             r_cut: 2.5,
-            u_sum: 0.0,
-            v_sum: 0.0,
+            u_sum: Cell::new(0.0),
+            v_sum: Cell::new(0.0),
         }
     }
 }
 
 impl<const D: usize> PotentialEnergy<D> for LennardJones {
-    fn compute_forces(&self, pos: &[DVector<D>], acc: &mut [DVector<D>]) {
-        
-    }
+    fn compute_forces(&self, pos: &[DVector<D>], acc: &mut [DVector<D>]) {}
 
     fn u_sum(&self) -> Real {
-        0.0
+        self.u_sum.get()
     }
 
     fn virial_sum(&self) -> Real {
-        0.0
+        self.v_sum.get()
     }
 }
