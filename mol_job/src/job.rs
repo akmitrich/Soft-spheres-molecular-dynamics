@@ -83,4 +83,21 @@ impl<const D: usize> Job<D> {
             }
         }
     }
+
+    pub fn time_now(&self) -> Real {
+        verlet::Config::delta_t(self) * self.step_count.get() as Real
+    }
+}
+
+pub struct JobSetup<const D: usize>(Job<D>);
+
+impl<const D: usize> JobSetup<D> {
+    pub fn build() -> Self {
+        let mut job = Job::default();
+        Self(job)
+    }
+
+    pub fn job(self) -> Job<D> {
+        self.0
+    }
 }
