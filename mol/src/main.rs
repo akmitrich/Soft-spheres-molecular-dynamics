@@ -15,7 +15,6 @@ fn main() {
 fn create_job() -> Job<3> {
     JobSetup::build()
         .step_limit(100)
-        .step_avg(10)
         .potential(LennardJones::new(3.))
         .job()
 }

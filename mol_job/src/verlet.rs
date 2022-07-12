@@ -4,7 +4,7 @@ use crate::{boundaries::BoundaryConditions, potential::PotentialEnergy, prop::Pr
 use d_vector::{DVector, Real};
 use std::{cell::RefMut, ops::AddAssign};
 
-pub trait Config {
+pub trait MolecularTimer {
     fn step_begin(&self);
     fn delta_t(&self) -> Real {
         5e-3
@@ -19,7 +19,7 @@ pub trait State<const D: usize> {
 }
 
 pub fn single_step<const D: usize>(
-    config: &dyn Config,
+    config: &dyn MolecularTimer,
     state: &dyn State<D>,
     boundaries: &dyn BoundaryConditions<D>,
     potential_energy: &dyn PotentialEnergy<D>,

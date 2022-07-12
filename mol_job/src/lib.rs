@@ -13,7 +13,6 @@ mod tests {
         use potential::NoInteraction;
         let mut j: Job<3> = JobSetup::build()
         .step_limit(100)
-        .step_avg(10)
         .potential(NoInteraction::default())
         .job();
     j.run();

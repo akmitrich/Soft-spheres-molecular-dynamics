@@ -23,7 +23,6 @@ pub struct Job<const D: usize> {
     props: Box<dyn Props<D>>,
     step_count: Cell<usize>,
     step_limit: usize,
-    step_avg: usize,
     delta_t: Real,
     more_cycles: bool,
 }
@@ -42,7 +41,7 @@ impl<const D: usize> verlet::State<D> for Job<D> {
     }
 }
 
-impl<const D: usize> verlet::Config for Job<D> {
+impl<const D: usize> verlet::MolecularTimer for Job<D> {
     fn step_begin(&self) {
         self.step_count.set(self.step_count.get() + 1);
     }
@@ -67,7 +66,6 @@ impl<const D: usize> Default for Job<D> {
             props: Box::new(TrivialProps::default()),
             step_count: Cell::new(0),
             step_limit: 10,
-            step_avg: 1,
             delta_t: 0.005,
             more_cycles: true,
         }
@@ -91,7 +89,7 @@ impl<const D: usize> Job<D> {
     }
 
     pub fn time_now(&self) -> Real {
-        verlet::Config::delta_t(self) * self.step_count.get() as Real
+        verlet::MolecularTimer::delta_t(self) * self.step_count.get() as Real
     }
 }
 
@@ -101,11 +99,6 @@ impl<const D: usize> JobSetup<D> {
     pub fn build() -> Self {
         let mut job = Job::default();
         Self(job)
-    }
-
-    pub fn step_avg(mut self, avg: usize) -> Self {
-        self.0.step_avg = avg;
-        self
     }
 
     pub fn step_limit(mut self, limit: usize) -> Self {
