@@ -15,7 +15,7 @@ mod tests {
         .delta_t(1e-3)
         .potential(NoInteraction::default())
         .job();
-    j.run(100);
+    assert_eq!(0, j.run(100));
     assert_eq!(0.1, j.time_now())
     }
 

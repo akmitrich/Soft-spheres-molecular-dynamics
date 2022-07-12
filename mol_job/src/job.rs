@@ -112,6 +112,11 @@ impl<const D: usize> JobSetup<D> {
         self
     }
 
+    pub fn props(mut self, props: impl Props<D> + 'static) -> Self {
+        self.0.props = Box::new(props);
+        self
+    }
+
     pub fn job(self) -> Job<D> {
         self.0
     }
