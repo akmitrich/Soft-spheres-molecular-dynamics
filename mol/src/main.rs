@@ -8,13 +8,12 @@ fn main() {
     println!("Hello, {:?}", v.components());
 
     let mut j = create_job();
-    j.run();
-    println!("World, {:?}", j);
+    j.run(100);
+    println!("World: {:?}, time now {}", j, j.time_now());
 }
 
 fn create_job() -> Job<3> {
     JobSetup::build()
-        .step_limit(100)
         .potential(LennardJones::new(3.))
         .job()
 }

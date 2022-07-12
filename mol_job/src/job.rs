@@ -9,7 +9,7 @@ use crate::{
     boundaries::{BoundaryConditions, Region},
     potential::{LennardJones, PotentialEnergy},
     prop::{TrivialProps, Props},
-    verlet,
+    verlet::{self, MolecularTimer},
 };
 use d_vector::{DVector, Real};
 
@@ -22,7 +22,6 @@ pub struct Job<const D: usize> {
     potential: Box<dyn PotentialEnergy<D>>,
     props: Box<dyn Props<D>>,
     step_count: Cell<usize>,
-    step_limit: usize,
     delta_t: Real,
     more_cycles: bool,
 }
@@ -65,7 +64,6 @@ impl<const D: usize> Default for Job<D> {
             potential: Box::new(LennardJones::default()),
             props: Box::new(TrivialProps::default()),
             step_count: Cell::new(0),
-            step_limit: 10,
             delta_t: 0.005,
             more_cycles: true,
         }
@@ -73,7 +71,9 @@ impl<const D: usize> Default for Job<D> {
 }
 
 impl<const D: usize> Job<D> {
-    pub fn run(&mut self) {
+    pub fn run(&mut self, steps: usize) -> usize {
+        self.more_cycles = true;
+        let step_limit = self.step_count() + steps;
         while self.more_cycles {
             verlet::single_step(
                 self,
@@ -82,10 +82,11 @@ impl<const D: usize> Job<D> {
                 self.potential.as_ref(),
                 self.props.as_ref(),
             );
-            if self.step_count.get() >= self.step_limit {
+            if self.step_count() >= step_limit {
                 self.more_cycles = false;
             }
         }
+        self.step_count() - step_limit
     }
 
     pub fn time_now(&self) -> Real {
@@ -99,11 +100,6 @@ impl<const D: usize> JobSetup<D> {
     pub fn build() -> Self {
         let mut job = Job::default();
         Self(job)
-    }
-
-    pub fn step_limit(mut self, limit: usize) -> Self {
-        self.0.step_limit = limit;
-        self
     }
 
     pub fn delta_t(mut self, dt: Real) -> Self {

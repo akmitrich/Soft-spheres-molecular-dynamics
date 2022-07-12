@@ -12,11 +12,11 @@ mod tests {
         use job::{Job, JobSetup};
         use potential::NoInteraction;
         let mut j: Job<3> = JobSetup::build()
-        .step_limit(100)
+        .delta_t(1e-3)
         .potential(NoInteraction::default())
         .job();
-    j.run();
-    assert_eq!(0.5, j.time_now())
+    j.run(100);
+    assert_eq!(0.1, j.time_now())
     }
 
     #[test]
