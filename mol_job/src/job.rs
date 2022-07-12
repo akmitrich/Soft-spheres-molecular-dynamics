@@ -27,7 +27,7 @@ pub struct Job<const D: usize> {
     more_cycles: bool,
 }
 
-impl<const D: usize> verlet::State<D> for Job<D> {
+impl<const D: usize> verlet::MolecularState<D> for Job<D> {
     fn get_pos(&self) -> RefMut<Vec<DVector<D>>> {
         self.pos.borrow_mut()
     }

@@ -12,7 +12,7 @@ pub trait MolecularTimer {
     fn step_count(&self) -> usize;
 }
 
-pub trait State<const D: usize> {
+pub trait MolecularState<const D: usize> {
     fn get_pos(&self) -> RefMut<Vec<DVector<D>>>;
     fn get_vel(&self) -> RefMut<Vec<DVector<D>>>;
     fn get_acc(&self) -> RefMut<Vec<DVector<D>>>;
@@ -20,7 +20,7 @@ pub trait State<const D: usize> {
 
 pub fn single_step<const D: usize>(
     config: &dyn MolecularTimer,
-    state: &dyn State<D>,
+    state: &dyn MolecularState<D>,
     boundaries: &dyn BoundaryConditions<D>,
     potential_energy: &dyn PotentialEnergy<D>,
     props: &dyn Props<D>,
