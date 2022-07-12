@@ -113,6 +113,16 @@ impl<const D: usize> JobSetup<D> {
         self
     }
 
+    pub fn delta_t(mut self, dt: Real) -> Self {
+        self.0.delta_t = dt;
+        self
+    }
+
+    pub fn potential(mut self, potential: impl PotentialEnergy<D> + 'static) -> Self {
+        self.0.potential = Box::new(potential);
+        self
+    }
+
     pub fn job(self) -> Job<D> {
         self.0
     }

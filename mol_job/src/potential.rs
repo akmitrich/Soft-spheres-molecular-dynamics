@@ -9,6 +9,22 @@ pub trait PotentialEnergy<const D: usize>: Debug {
     fn virial_sum(&self) -> Real;
 }
 
+#[derive(Debug, Default)]
+pub struct NoInteraction;
+impl<const D: usize> PotentialEnergy<D> for NoInteraction {
+    fn compute_forces(&self, _: &[DVector<D>], _: &mut [DVector<D>]) {
+        
+    }
+
+    fn u_sum(&self) -> Real {
+        0.0
+    }
+
+    fn virial_sum(&self) -> Real {
+        0.0
+    }
+}
+
 #[derive(Debug)]
 pub struct LennardJones {
     r_cut: Real,
@@ -35,5 +51,13 @@ impl<const D: usize> PotentialEnergy<D> for LennardJones {
 
     fn virial_sum(&self) -> Real {
         self.v_sum.get()
+    }
+}
+
+impl LennardJones {
+    pub fn new(r_cut: Real) -> Self {
+        Self { r_cut, 
+            ..Default::default() 
+        }
     }
 }

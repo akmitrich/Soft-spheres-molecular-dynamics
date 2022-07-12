@@ -10,9 +10,11 @@ mod tests {
     #[test]
     fn it_works() {
         use job::{Job, JobSetup};
+        use potential::NoInteraction;
         let mut j: Job<3> = JobSetup::build()
         .step_limit(100)
         .step_avg(10)
+        .potential(NoInteraction::default())
         .job();
     j.run();
     assert_eq!(0.5, j.time_now())
