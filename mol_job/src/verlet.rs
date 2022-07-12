@@ -9,7 +9,7 @@ pub trait Config {
     fn delta_t(&self) -> Real {
         5e-3
     }
-    fn need_avg(&self) -> bool;
+    fn step_count(&self) -> usize;
 }
 
 pub trait State<const D: usize> {
@@ -37,7 +37,7 @@ pub fn single_step<const D: usize>(
 
     props.eval_props(potential_energy, &pos, &vel);
     props.accum_props();
-    if config.need_avg() {
+    if props.need_avg(config.step_count()) {
         props.avg_props();
         props.summarize();
         props.reset();

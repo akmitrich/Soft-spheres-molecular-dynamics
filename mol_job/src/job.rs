@@ -47,8 +47,8 @@ impl<const D: usize> verlet::Config for Job<D> {
         self.step_count.set(self.step_count.get() + 1);
     }
 
-    fn need_avg(&self) -> bool {
-        self.step_count.get() % self.step_avg == 0
+    fn step_count(&self) -> usize {
+        self.step_count.get()
     }
 
     fn delta_t(&self) -> Real {

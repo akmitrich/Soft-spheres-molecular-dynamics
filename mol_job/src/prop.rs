@@ -9,6 +9,9 @@ pub trait Props<const D: usize>: Debug {
     fn reset(&self);
     fn eval_props(&self, u: &dyn PotentialEnergy<D>, pos: &[DVector<D>], vel: &[DVector<D>]);
     fn accum_props(&self);
+    fn need_avg(&self, step_count: usize) -> bool {
+        step_count % 10 == 0
+    }
     fn avg_props(&self);
     fn summarize(&self) {}
 }
