@@ -24,6 +24,7 @@ pub struct Job<const D: usize> {
     step_count: Cell<usize>,
     step_limit: usize,
     step_avg: usize,
+    delta_t: Real,
     more_cycles: bool,
 }
 
@@ -49,6 +50,10 @@ impl<const D: usize> verlet::Config for Job<D> {
     fn need_avg(&self) -> bool {
         self.step_count.get() % self.step_avg == 0
     }
+
+    fn delta_t(&self) -> Real {
+        self.delta_t
+    }
 }
 
 impl<const D: usize> Default for Job<D> {
@@ -62,7 +67,8 @@ impl<const D: usize> Default for Job<D> {
             props: Box::new(TrivialProps::default()),
             step_count: Cell::new(0),
             step_limit: 10,
-            step_avg: 10,
+            step_avg: 1,
+            delta_t: 0.005,
             more_cycles: true,
         }
     }
@@ -95,6 +101,16 @@ impl<const D: usize> JobSetup<D> {
     pub fn build() -> Self {
         let mut job = Job::default();
         Self(job)
+    }
+
+    pub fn step_avg(mut self, avg: usize) -> Self {
+        self.0.step_avg = avg;
+        self
+    }
+
+    pub fn step_limit(mut self, limit: usize) -> Self {
+        self.0.step_limit = limit;
+        self
     }
 
     pub fn job(self) -> Job<D> {

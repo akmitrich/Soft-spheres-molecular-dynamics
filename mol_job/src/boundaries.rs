@@ -50,15 +50,4 @@ impl<const D: usize> BoundaryConditions<D> for Region<D> {
 mod tests {
     use super::*;
 
-    #[test]
-    fn wrap() {
-        let region = Region::new([1., 5.]);
-        let mut p = DVector::from([1.5, -4.]);
-        region.wrap(&mut p);
-        assert_eq!(&[0.5, 1.], p.components());
-        let region = Region::new([1., 5.]);
-        let mut p = DVector::from([0.2, -1.5]);
-        region.wrap(&mut p);
-        assert_eq!(&[0.2, -1.5], p.components());
-    }
 }
