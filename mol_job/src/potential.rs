@@ -12,9 +12,7 @@ pub trait PotentialEnergy<const D: usize>: Debug {
 #[derive(Debug, Default)]
 pub struct NoInteraction;
 impl<const D: usize> PotentialEnergy<D> for NoInteraction {
-    fn compute_forces(&self, _: &[DVector<D>], _: &mut [DVector<D>]) {
-        
-    }
+    fn compute_forces(&self, _: &[DVector<D>], _: &mut [DVector<D>]) {}
 
     fn u_sum(&self) -> Real {
         0.0
@@ -56,8 +54,9 @@ impl<const D: usize> PotentialEnergy<D> for LennardJones {
 
 impl LennardJones {
     pub fn new(r_cut: Real) -> Self {
-        Self { r_cut, 
-            ..Default::default() 
+        Self {
+            r_cut,
+            ..Default::default()
         }
     }
 }

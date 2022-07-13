@@ -8,7 +8,7 @@ use std::{
 use crate::{
     boundaries::{BoundaryConditions, Region},
     potential::{LennardJones, PotentialEnergy},
-    prop::{TrivialProps, Props},
+    prop::{Props, TrivialProps},
     verlet::{self, MolecularTimer},
 };
 use d_vector::{DVector, Real};
@@ -40,17 +40,28 @@ impl<const D: usize> verlet::MolecularState<D> for Job<D> {
     }
 }
 
-impl<const D: usize> verlet::MolecularTimer for Job<D> {
+impl<const D: usize> verlet::MolecularTimer<D> for Job<D> {
     fn step_begin(&self) {
-        self.step_count.set(self.step_count.get() + 1);
-    }
-
-    fn step_count(&self) -> usize {
-        self.step_count.get()
+        self.step_count.set(self.step_count() + 1);
     }
 
     fn delta_t(&self) -> Real {
         self.delta_t
+    }
+
+    fn step_end(
+        &self,
+        state: &dyn verlet::MolecularState<D>,
+        potential_energy: &dyn PotentialEnergy<D>,
+    ) {
+        self.props
+            .eval_props(potential_energy, &state.get_pos(), &state.get_vel());
+        self.props.accum_props();
+        if self.props.need_avg(self.step_count()) {
+            self.props.avg_props();
+            self.props.summarize();
+            self.props.reset();
+        }
     }
 }
 
@@ -80,7 +91,6 @@ impl<const D: usize> Job<D> {
                 self,
                 self.boundaries.as_ref(),
                 self.potential.as_ref(),
-                self.props.as_ref(),
             );
             if self.step_count() >= step_limit {
                 self.more_cycles = false;
@@ -90,7 +100,11 @@ impl<const D: usize> Job<D> {
     }
 
     pub fn time_now(&self) -> Real {
-        verlet::MolecularTimer::delta_t(self) * self.step_count.get() as Real
+        verlet::MolecularTimer::delta_t(self) * self.step_count() as Real
+    }
+
+    pub fn step_count(&self) -> usize {
+        self.step_count.get()
     }
 }
 

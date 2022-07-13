@@ -4,12 +4,12 @@ use crate::{boundaries::BoundaryConditions, potential::PotentialEnergy, prop::Pr
 use d_vector::{DVector, Real};
 use std::{cell::RefMut, ops::AddAssign};
 
-pub trait MolecularTimer {
+pub trait MolecularTimer<const D: usize> {
     fn step_begin(&self);
     fn delta_t(&self) -> Real {
         5e-3
     }
-    fn step_count(&self) -> usize;
+    fn step_end(&self, state: &dyn MolecularState<D>, potential_energy: &dyn PotentialEnergy<D>);
 }
 
 pub trait MolecularState<const D: usize> {
@@ -19,54 +19,57 @@ pub trait MolecularState<const D: usize> {
 }
 
 pub fn single_step<const D: usize>(
-    config: &dyn MolecularTimer,
+    timer: &dyn MolecularTimer<D>,
     state: &dyn MolecularState<D>,
     boundaries: &dyn BoundaryConditions<D>,
     potential_energy: &dyn PotentialEnergy<D>,
-    props: &dyn Props<D>,
 ) {
-    let mut pos = state.get_pos();
-    let mut vel = state.get_vel();
-    let mut acc = state.get_acc();
-    config.step_begin();
+    timer.step_begin();
 
-    leapfrog_begin(config.delta_t(), &mut pos, &mut vel, &acc);
-    apply_boundary_conditions(boundaries, &mut pos);
-    potential_energy.compute_forces(&pos, &mut acc);
-    leapfrog_end(config.delta_t(), &mut vel, &acc);
+    leapfrog_begin(
+        timer.delta_t(),
+        &mut state.get_pos(),
+        &mut state.get_vel(),
+        &state.get_acc(),
+    );
+    apply_boundary_conditions(boundaries, &mut state.get_pos());
+    potential_energy.compute_forces(&state.get_pos(), &mut state.get_acc());
+    leapfrog_end(timer.delta_t(), &mut state.get_vel(), &state.get_acc());
 
-    props.eval_props(potential_energy, &pos, &vel);
-    props.accum_props();
-    if props.need_avg(config.step_count()) {
-        props.avg_props();
-        props.summarize();
-        props.reset();
-    }
+    timer.step_end(state, potential_energy);
 }
 
-fn apply_boundary_conditions<const D: usize>(b: &dyn BoundaryConditions<D>, p: &mut [DVector<D>]) {
-    p.iter_mut().for_each(|position| b.wrap(position));
+fn apply_boundary_conditions<const D: usize>(
+    boundaries: &dyn BoundaryConditions<D>,
+    pos: &mut [DVector<D>],
+) {
+    pos.iter_mut()
+        .for_each(|position| boundaries.wrap(position));
 }
 
 fn leapfrog_begin<const D: usize>(
-    dt: Real,
-    p: &mut [DVector<D>],
-    v: &mut [DVector<D>],
-    a: &[DVector<D>],
+    delat_t: Real,
+    pos: &mut [DVector<D>],
+    vel: &mut [DVector<D>],
+    acc: &[DVector<D>],
 ) {
-    calc_vel_for_half_step(dt, v, a);
-    p.iter_mut()
-        .zip(v.iter())
-        .for_each(|(p, v)| p.add_assign(dt * v));
+    calc_vel_for_half_step(delat_t, vel, acc);
+    pos.iter_mut()
+        .zip(vel.iter())
+        .for_each(|(position, velocity)| position.add_assign(delat_t * velocity));
 }
 
-fn leapfrog_end<const D: usize>(dt: Real, v: &mut [DVector<D>], a: &[DVector<D>]) {
-    calc_vel_for_half_step(dt, v, a);
+fn leapfrog_end<const D: usize>(delat_t: Real, vel: &mut [DVector<D>], acc: &[DVector<D>]) {
+    calc_vel_for_half_step(delat_t, vel, acc);
 }
 
-fn calc_vel_for_half_step<const D: usize>(dt: Real, v: &mut [DVector<D>], a: &[DVector<D>]) {
-    let half_delta_t = dt / 2.;
-    v.iter_mut()
-        .zip(a.iter())
-        .for_each(|(v, a)| v.add_assign(half_delta_t * a));
+fn calc_vel_for_half_step<const D: usize>(
+    delta_t: Real,
+    vel: &mut [DVector<D>],
+    acc: &[DVector<D>],
+) {
+    let half_delta_t = delta_t / 2.;
+    vel.iter_mut()
+        .zip(acc.iter())
+        .for_each(|(velocity, acceleration)| velocity.add_assign(half_delta_t * acceleration));
 }

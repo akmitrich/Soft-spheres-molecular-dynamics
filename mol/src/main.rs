@@ -15,7 +15,5 @@ fn main() {
 }
 
 fn create_job() -> Job<3> {
-    JobSetup::build()
-        .potential(LennardJones::new(3.))
-        .job()
+    JobSetup::build().potential(LennardJones::new(3.)).job()
 }

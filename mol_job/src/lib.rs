@@ -12,17 +12,17 @@ mod tests {
         use job::{Job, JobSetup};
         use potential::NoInteraction;
         let mut j: Job<3> = JobSetup::build()
-        .delta_t(1e-3)
-        .potential(NoInteraction::default())
-        .job();
-    assert_eq!(0, j.run(100));
-    assert_eq!(0.1, j.time_now())
+            .delta_t(1e-3)
+            .potential(NoInteraction::default())
+            .job();
+        assert_eq!(0, j.run(100));
+        assert_eq!(0.1, j.time_now())
     }
 
     #[test]
     fn wrap() {
+        use boundaries::{BoundaryConditions, Region};
         use d_vector::DVector;
-        use boundaries::{Region, BoundaryConditions};
         let region = Region::new([1., 5.]);
         let mut p = DVector::from([1.5, -4.]);
         region.wrap(&mut p);

@@ -49,5 +49,4 @@ impl<const D: usize> BoundaryConditions<D> for Region<D> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
 }
