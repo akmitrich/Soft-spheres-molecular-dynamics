@@ -9,7 +9,9 @@ fn main() {
 
     let mut j = create_job();
     j.run(100);
-    println!("World: {:?}, time now {}", j, j.time_now());
+    println!("World 1: {:?}, time now {}", j, j.time_now());
+    j.run(100);
+    println!("World 2: {:?}, time now {}", j, j.time_now());
 }
 
 fn create_job() -> Job<3> {
