@@ -9,7 +9,7 @@ pub trait MolecularTimer<const D: usize> {
     fn delta_t(&self) -> Real {
         5e-3
     }
-    fn step_end(&self, state: &dyn MolecularState<D>, potential_energy: &dyn PotentialEnergy<D>);
+    fn step_complete(&self, state: &dyn MolecularState<D>, potential_energy: &dyn PotentialEnergy<D>);
 }
 
 pub trait MolecularState<const D: usize> {
@@ -36,7 +36,7 @@ pub fn single_step<const D: usize>(
     potential_energy.compute_forces(&state.get_pos(), &mut state.get_acc());
     leapfrog_end(timer.delta_t(), &mut state.get_vel(), &state.get_acc());
 
-    timer.step_end(state, potential_energy);
+    timer.step_complete(state, potential_energy);
 }
 
 fn apply_boundary_conditions<const D: usize>(
@@ -53,6 +53,7 @@ fn leapfrog_begin<const D: usize>(
     vel: &mut [DVector<D>],
     acc: &[DVector<D>],
 ) {
+    assert_eq!(pos.len(), vel.len());
     calc_vel_for_half_step(delat_t, vel, acc);
     pos.iter_mut()
         .zip(vel.iter())
@@ -68,6 +69,7 @@ fn calc_vel_for_half_step<const D: usize>(
     vel: &mut [DVector<D>],
     acc: &[DVector<D>],
 ) {
+    assert_eq!(vel.len(), acc.len());
     let half_delta_t = delta_t / 2.;
     vel.iter_mut()
         .zip(acc.iter())

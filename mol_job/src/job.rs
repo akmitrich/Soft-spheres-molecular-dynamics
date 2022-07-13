@@ -49,7 +49,7 @@ impl<const D: usize> verlet::MolecularTimer<D> for Job<D> {
         self.delta_t
     }
 
-    fn step_end(
+    fn step_complete(
         &self,
         state: &dyn verlet::MolecularState<D>,
         potential_energy: &dyn PotentialEnergy<D>,
