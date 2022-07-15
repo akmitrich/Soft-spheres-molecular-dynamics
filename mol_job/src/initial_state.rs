@@ -1,9 +1,7 @@
 #![allow(unused, dead_code)]
 
 use std::ops::AddAssign;
-
 use d_vector::{DVector, Real};
-
 use crate::boundaries::Region;
 
 pub fn cubic_lattice<const D: usize>(n_mol: usize, density: Real) -> (Region<D>, Vec<DVector<D>>) {
@@ -30,8 +28,8 @@ fn number_of_atoms(cells: &[usize]) -> usize {
 
 fn calc_gap<const D: usize>(region: &Region<D>, cells: &[usize; D]) -> [Real; D] {
     let mut result = [0.; D];
-    for (i, c) in region.dimensions().iter().enumerate() {
-        result[i] = c / cells[i] as Real;
+    for (i, component) in region.dimensions().iter().enumerate() {
+        result[i] = component / cells[i] as Real;
     }
     result
 }
@@ -44,7 +42,7 @@ fn lattice<const D: usize>(
     current_index: usize,
 ) {
     for i in 0..cells[current_index] {
-        current[current_index] = (0.5_f32 + i as f32) * gap[current_index];
+        current[current_index] = (0.5_f32 + i as Real) * gap[current_index];
         if current_index == D - 1 {
             pos.push(DVector::from(current));
         } else {

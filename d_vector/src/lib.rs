@@ -30,15 +30,14 @@ impl<const D: usize> DVector<D> {
             *component = rng.gen();
             *component -= 0.5;
         }
-        let result = Self::from(components);
-        (1. / result.square_length().sqrt()) * result
+        Self::from(components)
     }
 }
 
 impl<const D: usize> Default for DVector<D> {
     fn default() -> Self {
         Self {
-            components: [0 as Real; D],
+            components: [0.; D],
         }
     }
 }

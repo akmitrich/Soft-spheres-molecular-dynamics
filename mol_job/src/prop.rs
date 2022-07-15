@@ -1,7 +1,6 @@
 #![allow(unused, dead_code)]
 
 use std::fmt::Debug;
-
 use crate::potential::PotentialEnergy;
 use d_vector::DVector;
 

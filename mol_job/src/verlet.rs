@@ -1,22 +1,10 @@
 #![allow(unused, dead_code)]
 
+use std::{cell::RefMut, ops::AddAssign};
+use d_vector::{DVector, Real};
 use crate::{
     boundaries::BoundaryConditions, potential::PotentialEnergy, prop::Props, state::MolecularState,
 };
-use d_vector::{DVector, Real};
-use std::{cell::RefMut, ops::AddAssign};
-
-pub trait MolecularTimer<const D: usize> {
-    fn step_begin(&self);
-    fn delta_t(&self) -> Real {
-        5e-3
-    }
-    fn step_complete(
-        &self,
-        state: &dyn MolecularState<D>,
-        potential_energy: &dyn PotentialEnergy<D>,
-    );
-}
 
 pub fn single_step<const D: usize>(
     delta_t: Real,
@@ -35,7 +23,7 @@ pub fn single_step<const D: usize>(
     leapfrog_end(delta_t, &mut state.get_vel(), &state.get_acc());
 }
 
-fn apply_boundary_conditions<const D: usize>(
+pub fn apply_boundary_conditions<const D: usize>(
     boundaries: &dyn BoundaryConditions<D>,
     pos: &mut [DVector<D>],
 ) {
@@ -44,7 +32,7 @@ fn apply_boundary_conditions<const D: usize>(
     }
 }
 
-fn leapfrog_begin<const D: usize>(
+pub fn leapfrog_begin<const D: usize>(
     delat_t: Real,
     pos: &mut [DVector<D>],
     vel: &mut [DVector<D>],
@@ -57,7 +45,7 @@ fn leapfrog_begin<const D: usize>(
     }
 }
 
-fn leapfrog_end<const D: usize>(delat_t: Real, vel: &mut [DVector<D>], acc: &[DVector<D>]) {
+pub fn leapfrog_end<const D: usize>(delat_t: Real, vel: &mut [DVector<D>], acc: &[DVector<D>]) {
     calc_vel_for_half_step(delat_t, vel, acc);
 }
 

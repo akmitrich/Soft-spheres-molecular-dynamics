@@ -2,7 +2,6 @@
 
 use d_vector::{DVector, Real};
 use std::{cell::Cell, fmt::Debug};
-
 use crate::boundaries::BoundaryConditions;
 
 pub trait PotentialEnergy<const D: usize>: Debug {

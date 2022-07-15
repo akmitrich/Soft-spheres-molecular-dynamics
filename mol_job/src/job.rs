@@ -4,13 +4,12 @@ use std::{
     cell::{Cell, RefCell, RefMut},
     ops::AddAssign,
 };
-
 use crate::{
     boundaries::{BoundaryConditions, Region},
     potential::{LennardJones, PotentialEnergy},
     prop::{Props, TrivialProps},
     state::{MolecularState, State},
-    verlet::{self, MolecularTimer},
+    verlet,
 };
 use d_vector::{DVector, Real};
 
@@ -23,27 +22,6 @@ pub struct Job<const D: usize> {
     step_count: Cell<usize>,
     delta_t: Real,
     more_cycles: bool,
-}
-
-impl<const D: usize> Job<D> {
-    fn advance_step_count(&self) {
-        self.step_count.set(self.step_count() + 1);
-    }
-
-    fn delta_t(&self) -> Real {
-        self.delta_t
-    }
-
-    fn update_props(&self) {
-        self.props
-            .eval_props(self.potential.as_ref(), &self.state.get_pos(), &self.state.get_vel());
-        self.props.accum_props();
-        if self.props.need_avg(self.step_count()) {
-            self.props.avg_props();
-            self.props.summarize();
-            self.props.reset();
-        }
-    }
 }
 
 impl<const D: usize> Default for Job<D> {
@@ -80,6 +58,25 @@ impl<const D: usize> Job<D> {
             }    
         }
         self.step_count() - step_limit
+    }
+
+    fn advance_step_count(&self) {
+        self.step_count.set(self.step_count() + 1);
+    }
+
+    fn delta_t(&self) -> Real {
+        self.delta_t
+    }
+
+    fn update_props(&self) {
+        self.props
+            .eval_props(self.potential.as_ref(), &self.state.get_pos(), &self.state.get_vel());
+        self.props.accum_props();
+        if self.props.need_avg(self.step_count()) {
+            self.props.avg_props();
+            self.props.summarize();
+            self.props.reset();
+        }
     }
 
     pub fn time_now(&self) -> Real {
