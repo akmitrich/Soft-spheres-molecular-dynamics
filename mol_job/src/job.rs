@@ -51,7 +51,7 @@ impl<const D: usize> Job<D> {
                 self.potential.as_ref(),
             );
             self.update_props();
-            self.state.sync();
+            self.state.sync(self.time_now());
             
             if self.step_count() >= step_limit {
                 self.more_cycles = false;

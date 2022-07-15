@@ -9,7 +9,7 @@ pub trait MolecularState<const D: usize>: Debug {
     fn get_pos(&self) -> RefMut<Vec<DVector<D>>>;
     fn get_vel(&self) -> RefMut<Vec<DVector<D>>>;
     fn get_acc(&self) -> RefMut<Vec<DVector<D>>>;
-    fn sync(&self) {}
+    fn sync(&self, time_now: Real) {}
 }
 
 #[derive(Debug, Default)]
