@@ -16,7 +16,7 @@ fn main() {
     println!("Run 1 complete. vel_sum = {:?}", j.vel_sum());
     j.run(100);
     fs::write("w2.txt", format!("World 2: {:?}, time now {}", j, j.time_now()));
-    println!("Run 2 complete. vel_sum = {:?}", j.vel_sum());
+    println!("Run 2 complete. vel_sum = {:?}, {}", j.vel_sum(), j.vel_sum().length());
 }
 
 fn create_job() -> Job<3> {

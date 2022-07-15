@@ -155,14 +155,10 @@ impl<const D: usize> JobSetup<D> {
     pub fn random_vel(mut self, temperature: Real) -> Self {
         let n_mol = self.0.vel.borrow().len();
         let vel_mag = (temperature * (D as Real) * (1. - 1. / (n_mol as Real))).sqrt();
-        for v in self.0.vel.borrow_mut().iter_mut() {
-            *v = vel_mag * DVector::random_vector();
-        }
+        crate::initial_state::randomize_vectors(&mut self.0.vel.borrow_mut(), vel_mag);
         let sum = self.0.vel_sum();
         let k = -1. / n_mol as Real;
-        for v in self.0.vel.borrow_mut().iter_mut() {
-            v.add_assign(k * &sum);
-        }
+        crate::initial_state::shift_vectors(&mut self.0.vel.borrow_mut(), &(k * sum));
         self
     }
 

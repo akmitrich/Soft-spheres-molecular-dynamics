@@ -19,6 +19,10 @@ impl<const D: usize> DVector<D> {
         self * self
     }
 
+    pub fn length(&self) -> Real {
+        self.square_length().sqrt()
+    }
+
     pub fn random_vector() -> Self {
         let mut components = [0 as Real; D];
         let mut rng = rand::thread_rng();

@@ -15,7 +15,7 @@ pub fn cubic_lattice<const D: usize>(n_mol: usize, density: Real) -> (Region<D>,
     let cells = [dim; D];
     let mut pos = Vec::with_capacity(number_of_atoms(&cells));
     lattice(&cells, &calc_gap(&region, &cells), &mut pos, [0.; D], 0);
-    shift_lattice(&mut pos, &(-0.5 * DVector::from(region.dimensions())));
+    shift_vectors(&mut pos, &(-0.5 * DVector::from(region.dimensions())));
 
     (region, pos)
 }
@@ -53,8 +53,16 @@ fn lattice<const D: usize>(
     }
 }
 
-fn shift_lattice<const D: usize>(pos: &mut [DVector<D>], shift: &DVector<D>) {
-    for position in pos.iter_mut() {
-        position.add_assign(shift);
+pub fn shift_vectors<const D: usize>(vectors: &mut [DVector<D>], shift: &DVector<D>) {
+    for v in vectors.iter_mut() {
+        v.add_assign(shift);
     }
 }
+
+pub fn randomize_vectors<const D: usize>(vectors: &mut [DVector<D>], magnitude: Real) {
+    for v in vectors.iter_mut() {
+        let rnd = DVector::random_vector();
+        *v = (magnitude / rnd.length()) * rnd;
+    }
+}
+
