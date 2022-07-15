@@ -30,6 +30,10 @@ impl<const D: usize> Region<D> {
     fn is_below(&self, position: &DVector<D>, index: usize) -> bool {
         position.components()[index] < -self.inner.components()[index] / 2.
     }
+
+    pub fn dimensions(&self) -> &[Real; D] {
+        self.inner.components()
+    }
 }
 
 impl<const D: usize> BoundaryConditions<D> for Region<D> {

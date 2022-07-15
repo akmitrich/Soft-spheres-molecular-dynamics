@@ -1,6 +1,8 @@
 #![allow(unused, dead_code)]
 use std::ops::{Add, AddAssign, Mul, MulAssign};
 
+use rand::Rng;
+
 pub type Real = f32;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -15,6 +17,17 @@ impl<const D: usize> DVector<D> {
 
     pub fn square_length(&self) -> Real {
         self * self
+    }
+
+    pub fn random_vector() -> Self {
+        let mut components = [0 as Real; D];
+        let mut rng = rand::thread_rng();
+        for component in components.iter_mut() {
+            *component = rng.gen();
+            *component -= 0.5;
+        }
+        let result = Self::from(components);
+        (1. / result.square_length().sqrt()) * result
     }
 }
 

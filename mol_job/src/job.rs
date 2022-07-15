@@ -106,6 +106,14 @@ impl<const D: usize> Job<D> {
     pub fn step_count(&self) -> usize {
         self.step_count.get()
     }
+
+    pub fn vel_sum(&self) -> DVector<D> {
+        let mut result = DVector::default();
+        for velocity in self.vel.borrow().iter() {
+            result += velocity;
+        }
+        result
+    }
 }
 
 pub struct JobSetup<const D: usize>(Job<D>);
@@ -128,6 +136,33 @@ impl<const D: usize> JobSetup<D> {
 
     pub fn props(mut self, props: impl Props<D> + 'static) -> Self {
         self.0.props = Box::new(props);
+        self
+    }
+
+    pub fn boundaries(mut self, boundaries: impl BoundaryConditions<D> + 'static) -> Self {
+        self.0.boundaries = Box::new(boundaries);
+        self
+    }
+
+    pub fn init_pos(mut self, pos: Vec<DVector<D>>) -> Self {
+        let n_mol = pos.len();
+        self.0.pos = RefCell::new(pos);
+        self.0.vel = RefCell::new(vec![DVector::default(); n_mol]);
+        self.0.acc = RefCell::new(vec![DVector::default(); n_mol]);
+        self
+    }
+
+    pub fn random_vel(mut self, temperature: Real) -> Self {
+        let n_mol = self.0.vel.borrow().len();
+        let vel_mag = (temperature * (D as Real) * (1. - 1. / (n_mol as Real))).sqrt();
+        for v in self.0.vel.borrow_mut().iter_mut() {
+            *v = vel_mag * DVector::random_vector();
+        }
+        let sum = self.0.vel_sum();
+        let k = -1. / n_mol as Real;
+        for v in self.0.vel.borrow_mut().iter_mut() {
+            v.add_assign(k * &sum);
+        }
         self
     }
 

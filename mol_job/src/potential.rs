@@ -3,8 +3,15 @@
 use d_vector::{DVector, Real};
 use std::{cell::Cell, fmt::Debug};
 
+use crate::boundaries::BoundaryConditions;
+
 pub trait PotentialEnergy<const D: usize>: Debug {
-    fn compute_forces(&self, pos: &[DVector<D>], acc: &mut [DVector<D>]);
+    fn compute_forces(
+        &self,
+        pos: &[DVector<D>],
+        acc: &mut [DVector<D>],
+        boundaries: &dyn BoundaryConditions<D>,
+    );
     fn u_sum(&self) -> Real;
     fn virial_sum(&self) -> Real;
 }
@@ -12,7 +19,13 @@ pub trait PotentialEnergy<const D: usize>: Debug {
 #[derive(Debug, Default)]
 pub struct NoInteraction;
 impl<const D: usize> PotentialEnergy<D> for NoInteraction {
-    fn compute_forces(&self, _: &[DVector<D>], _: &mut [DVector<D>]) {}
+    fn compute_forces(
+        &self,
+        _: &[DVector<D>],
+        _: &mut [DVector<D>],
+        _: &dyn BoundaryConditions<D>,
+    ) {
+    }
 
     fn u_sum(&self) -> Real {
         0.0
@@ -41,7 +54,13 @@ impl Default for LennardJones {
 }
 
 impl<const D: usize> PotentialEnergy<D> for LennardJones {
-    fn compute_forces(&self, pos: &[DVector<D>], acc: &mut [DVector<D>]) {}
+    fn compute_forces(
+        &self,
+        pos: &[DVector<D>],
+        acc: &mut [DVector<D>],
+        boundaries: &dyn BoundaryConditions<D>,
+    ) {
+    }
 
     fn u_sum(&self) -> Real {
         self.u_sum.get()
