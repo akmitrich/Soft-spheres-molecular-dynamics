@@ -3,6 +3,7 @@ pub mod initial_state;
 pub mod job;
 pub mod potential;
 pub mod prop;
+pub mod state;
 pub mod verlet;
 
 #[cfg(test)]
@@ -32,5 +33,21 @@ mod tests {
         let mut p = DVector::from([0.2, -1.5]);
         region.wrap(&mut p);
         assert_eq!(&[0.2, -1.5], p.components());
+    }
+
+    #[test]
+    fn cubic_lattice() {
+        use job::{Job, JobSetup};
+        use potential::NoInteraction;
+
+        let (boundaries, pos) = initial_state::cubic_lattice(1000, 0.8);
+        let mut j: Job<3> = JobSetup::build()
+            .boundaries(boundaries)
+            .init_pos(pos)
+            .potential(NoInteraction::default())
+            .job();
+        assert_eq!(0, j.run(100));
+        assert_eq!(0.5, j.time_now());
+        assert!(j.vel_sum().length() < 1e-3);
     }
 }

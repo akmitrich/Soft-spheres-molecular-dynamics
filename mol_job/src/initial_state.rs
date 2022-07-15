@@ -65,4 +65,3 @@ pub fn randomize_vectors<const D: usize>(vectors: &mut [DVector<D>], magnitude: 
         *v = (magnitude / rnd.length()) * rnd;
     }
 }
-

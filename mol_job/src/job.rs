@@ -9,15 +9,14 @@ use crate::{
     boundaries::{BoundaryConditions, Region},
     potential::{LennardJones, PotentialEnergy},
     prop::{Props, TrivialProps},
+    state::{MolecularState, State},
     verlet::{self, MolecularTimer},
 };
 use d_vector::{DVector, Real};
 
 #[derive(Debug)]
 pub struct Job<const D: usize> {
-    pos: RefCell<Vec<DVector<D>>>,
-    vel: RefCell<Vec<DVector<D>>>,
-    acc: RefCell<Vec<DVector<D>>>,
+    state: Box<dyn MolecularState<D>>,
     boundaries: Box<dyn BoundaryConditions<D>>,
     potential: Box<dyn PotentialEnergy<D>>,
     props: Box<dyn Props<D>>,
@@ -26,22 +25,8 @@ pub struct Job<const D: usize> {
     more_cycles: bool,
 }
 
-impl<const D: usize> verlet::MolecularState<D> for Job<D> {
-    fn get_pos(&self) -> RefMut<Vec<DVector<D>>> {
-        self.pos.borrow_mut()
-    }
-
-    fn get_vel(&self) -> RefMut<Vec<DVector<D>>> {
-        self.vel.borrow_mut()
-    }
-
-    fn get_acc(&self) -> RefMut<Vec<DVector<D>>> {
-        self.acc.borrow_mut()
-    }
-}
-
-impl<const D: usize> verlet::MolecularTimer<D> for Job<D> {
-    fn step_begin(&self) {
+impl<const D: usize> Job<D> {
+    fn advance_step_count(&self) {
         self.step_count.set(self.step_count() + 1);
     }
 
@@ -49,13 +34,9 @@ impl<const D: usize> verlet::MolecularTimer<D> for Job<D> {
         self.delta_t
     }
 
-    fn step_complete(
-        &self,
-        state: &dyn verlet::MolecularState<D>,
-        potential_energy: &dyn PotentialEnergy<D>,
-    ) {
+    fn update_props(&self) {
         self.props
-            .eval_props(potential_energy, &state.get_pos(), &state.get_vel());
+            .eval_props(self.potential.as_ref(), &self.state.get_pos(), &self.state.get_vel());
         self.props.accum_props();
         if self.props.need_avg(self.step_count()) {
             self.props.avg_props();
@@ -68,9 +49,7 @@ impl<const D: usize> verlet::MolecularTimer<D> for Job<D> {
 impl<const D: usize> Default for Job<D> {
     fn default() -> Self {
         Self {
-            pos: RefCell::new(vec![]),
-            vel: RefCell::new(vec![]),
-            acc: RefCell::new(vec![]),
+            state: Box::new(State::default()),
             boundaries: Box::new(Region::new([50.; D])),
             potential: Box::new(LennardJones::default()),
             props: Box::new(TrivialProps::default()),
@@ -86,21 +65,25 @@ impl<const D: usize> Job<D> {
         self.more_cycles = true;
         let step_limit = self.step_count() + steps;
         while self.more_cycles {
+            self.advance_step_count();
             verlet::single_step(
-                self,
-                self,
+                self.delta_t(),
+                self.state.as_ref(),
                 self.boundaries.as_ref(),
                 self.potential.as_ref(),
             );
+            self.update_props();
+            self.state.sync();
+            
             if self.step_count() >= step_limit {
                 self.more_cycles = false;
-            }
+            }    
         }
         self.step_count() - step_limit
     }
 
     pub fn time_now(&self) -> Real {
-        verlet::MolecularTimer::delta_t(self) * self.step_count() as Real
+        self.delta_t() * self.step_count() as Real
     }
 
     pub fn step_count(&self) -> usize {
@@ -109,7 +92,7 @@ impl<const D: usize> Job<D> {
 
     pub fn vel_sum(&self) -> DVector<D> {
         let mut result = DVector::default();
-        for velocity in self.vel.borrow().iter() {
+        for velocity in self.state.get_vel().iter() {
             result += velocity;
         }
         result
@@ -146,19 +129,19 @@ impl<const D: usize> JobSetup<D> {
 
     pub fn init_pos(mut self, pos: Vec<DVector<D>>) -> Self {
         let n_mol = pos.len();
-        self.0.pos = RefCell::new(pos);
-        self.0.vel = RefCell::new(vec![DVector::default(); n_mol]);
-        self.0.acc = RefCell::new(vec![DVector::default(); n_mol]);
+        *self.0.state.get_pos() = pos;
+        *self.0.state.get_vel() = vec![DVector::default(); n_mol];
+        *self.0.state.get_acc() = vec![DVector::default(); n_mol];
         self
     }
 
     pub fn random_vel(mut self, temperature: Real) -> Self {
-        let n_mol = self.0.vel.borrow().len();
+        let n_mol = self.0.state.get_pos().len();
         let vel_mag = (temperature * (D as Real) * (1. - 1. / (n_mol as Real))).sqrt();
-        crate::initial_state::randomize_vectors(&mut self.0.vel.borrow_mut(), vel_mag);
+        crate::initial_state::randomize_vectors(&mut self.0.state.get_vel(), vel_mag);
         let sum = self.0.vel_sum();
         let k = -1. / n_mol as Real;
-        crate::initial_state::shift_vectors(&mut self.0.vel.borrow_mut(), &(k * sum));
+        crate::initial_state::shift_vectors(&mut self.0.state.get_vel(), &(k * sum));
         self
     }
 

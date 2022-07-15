@@ -12,11 +12,21 @@ fn main() {
 
     let mut j = create_job();
     j.run(100);
-    fs::write("w1.txt", format!("World 1: {:?}, time now {}", j, j.time_now()));
+    fs::write(
+        "w1.txt",
+        format!("World 1: {:?}, time now {}", j, j.time_now()),
+    );
     println!("Run 1 complete. vel_sum = {:?}", j.vel_sum());
     j.run(100);
-    fs::write("w2.txt", format!("World 2: {:?}, time now {}", j, j.time_now()));
-    println!("Run 2 complete. vel_sum = {:?}, {}", j.vel_sum(), j.vel_sum().length());
+    fs::write(
+        "w2.txt",
+        format!("World 2: {:?}, time now {}", j, j.time_now()),
+    );
+    println!(
+        "Run 2 complete. vel_sum = {:?}, {}",
+        j.vel_sum(),
+        j.vel_sum().length()
+    );
 }
 
 fn create_job() -> Job<3> {
