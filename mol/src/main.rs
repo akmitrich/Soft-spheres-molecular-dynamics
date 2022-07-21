@@ -4,7 +4,7 @@ use std::fs;
 use d_vector::DVector;
 use mol_job::initial_state;
 use mol_job::job::{Job, JobSetup};
-use mol_job::potential::LennardJones;
+use mol_job::lennard_jones::LennardJones;
 
 fn main() {
     let v = DVector::from([1., 0.22, 1e-6]) + DVector::from([0.4, 0.01, 0.0]);

@@ -1,6 +1,7 @@
 pub mod boundaries;
 pub mod initial_state;
 pub mod job;
+pub mod lennard_jones;
 pub mod potential;
 pub mod prop;
 pub mod state;

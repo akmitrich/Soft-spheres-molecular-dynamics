@@ -6,10 +6,10 @@ use std::{
 };
 use crate::{
     boundaries::{BoundaryConditions, Region},
-    potential::{LennardJones, PotentialEnergy},
+    potential::PotentialEnergy,
     prop::{Props, TrivialProps},
     state::{MolecularState, State},
-    verlet,
+    verlet, lennard_jones::LennardJones,
 };
 use d_vector::{DVector, Real};
 
@@ -19,7 +19,7 @@ pub struct Job<const D: usize> {
     boundaries: Box<dyn BoundaryConditions<D>>,
     potential: Box<dyn PotentialEnergy<D>>,
     props: Box<dyn Props<D>>,
-    step_count: Cell<usize>,
+    step_count: usize,
     delta_t: Real,
     more_cycles: bool,
 }
@@ -31,7 +31,7 @@ impl<const D: usize> Default for Job<D> {
             boundaries: Box::new(Region::new([50.; D])),
             potential: Box::new(LennardJones::default()),
             props: Box::new(TrivialProps::default()),
-            step_count: Cell::new(0),
+            step_count: 0,
             delta_t: 0.005,
             more_cycles: true,
         }
@@ -60,8 +60,8 @@ impl<const D: usize> Job<D> {
         self.step_count() - step_limit
     }
 
-    fn advance_step_count(&self) {
-        self.step_count.set(self.step_count() + 1);
+    fn advance_step_count(&mut self) {
+        self.step_count += 1;
     }
 
     fn delta_t(&self) -> Real {
@@ -84,7 +84,7 @@ impl<const D: usize> Job<D> {
     }
 
     pub fn step_count(&self) -> usize {
-        self.step_count.get()
+        self.step_count
     }
 
     pub fn vel_sum(&self) -> DVector<D> {
