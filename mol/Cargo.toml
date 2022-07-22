@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 d_vector = {path = "../d_vector"}
 mol_job = {path = "../mol_job"}
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

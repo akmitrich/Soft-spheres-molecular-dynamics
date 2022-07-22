@@ -1,8 +1,8 @@
 #![allow(unused, dead_code)]
 
+use crate::boundaries::BoundaryConditions;
 use d_vector::{DVector, Real};
 use std::{cell::Cell, fmt::Debug};
-use crate::boundaries::BoundaryConditions;
 
 pub trait PotentialEnergy<const D: usize>: Debug {
     fn compute_forces(

@@ -1,7 +1,7 @@
 #![allow(unused, dead_code)]
-use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign};
-
 use rand::Rng;
+use serde::ser::{Serialize, SerializeSeq, Serializer};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
 pub type Real = f32;
 
@@ -57,6 +57,19 @@ impl<const D: usize> From<&[Real; D]> for DVector<D> {
 impl<const D: usize> From<[Real; D]> for DVector<D> {
     fn from(components: [Real; D]) -> Self {
         Self { components }
+    }
+}
+
+impl<const D: usize> Serialize for DVector<D> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut seq = serializer.serialize_seq(Some(D))?;
+        for e in self.components.iter() {
+            seq.serialize_element(e)?;
+        }
+        seq.end()
     }
 }
 

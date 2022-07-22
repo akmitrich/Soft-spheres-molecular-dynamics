@@ -1,8 +1,8 @@
 #![allow(unused, dead_code)]
 
-use std::fmt::Debug;
 use crate::potential::PotentialEnergy;
 use d_vector::DVector;
+use std::fmt::Debug;
 
 pub trait Props<const D: usize>: Debug {
     fn reset(&self);

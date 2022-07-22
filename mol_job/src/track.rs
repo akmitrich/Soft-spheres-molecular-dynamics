@@ -1,16 +1,38 @@
 #![allow(unused, dead_code)]
 
-use std::cell::{RefCell, RefMut};
-
-use d_vector::{DVector, Real};
 use crate::state::MolecularState;
+use d_vector::{DVector, Real};
+use serde::{Deserialize, Serialize};
+use std::{
+    cell::{Cell, RefCell, RefMut},
+    fs::{File, OpenOptions},
+};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Serialize)]
 pub struct Track {
+    time_now: Cell<Real>,
     pos: RefCell<Vec<DVector<3>>>,
     vel: RefCell<Vec<DVector<3>>>,
     acc: RefCell<Vec<DVector<3>>>,
-    time_now: Real,
+    #[serde(skip_serializing)]
+    output: File,
+}
+
+impl Default for Track {
+    fn default() -> Self {
+        let file = OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open("track.txt")
+            .unwrap();
+        Self {
+            time_now: Default::default(),
+            pos: Default::default(),
+            vel: Default::default(),
+            acc: Default::default(),
+            output: file,
+        }
+    }
 }
 
 impl MolecularState<3> for Track {
@@ -27,6 +49,8 @@ impl MolecularState<3> for Track {
     }
 
     fn sync(&self, time_now: Real) {
-
+        self.time_now.set(time_now);
+        let json = serde_json::to_string(self).unwrap();
+        println!("{}", json);
     }
 }

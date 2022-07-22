@@ -2,15 +2,15 @@
 
 use std::{cell::Cell, fs};
 
-use d_vector::{DVector, Real, reset_array};
-use crate::{potential::PotentialEnergy, boundaries::BoundaryConditions};
+use crate::{boundaries::BoundaryConditions, potential::PotentialEnergy};
+use d_vector::{reset_array, DVector, Real};
 
 #[derive(Debug)]
 pub struct LennardJones {
     r_cut: Real,
     u_sum: Cell<Real>,
     v_sum: Cell<Real>,
-    n: Cell<usize>
+    n: Cell<usize>,
 }
 
 impl Default for LennardJones {
@@ -19,7 +19,7 @@ impl Default for LennardJones {
             r_cut: 2.5,
             u_sum: Cell::new(0.0),
             v_sum: Cell::new(0.0),
-            n: Cell::new(0)
+            n: Cell::new(0),
         }
     }
 }
@@ -64,7 +64,6 @@ impl<const D: usize> PotentialEnergy<D> for LennardJones {
         self.v_sum.set(v_sum);
 
         self.n.set(self.n.get() + 1);
-        println!("{}. u = {}, v = {}", self.n.get(), u_sum, v_sum);
     }
 
     fn u_sum(&self) -> Real {

@@ -31,7 +31,7 @@ fn main() {
 }
 
 fn create_job() -> Job<3> {
-    let (boundaries, pos) = initial_state::cubic_lattice::<3>(1000, 0.8);
+    let (boundaries, pos) = initial_state::cubic_lattice::<3>(10, 0.8);
     JobSetup::build()
         .state(Track::default())
         .boundaries(boundaries)

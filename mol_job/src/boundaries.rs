@@ -1,13 +1,13 @@
 #![allow(unused, dead_code)]
 
+use crate::verlet;
+use d_vector::{DVector, Real};
 use std::{
     fmt::Debug,
     ops::{AddAssign, SubAssign},
 };
-use crate::verlet;
-use d_vector::{DVector, Real};
 
-pub trait BoundaryConditions<const D: usize> : Debug {
+pub trait BoundaryConditions<const D: usize>: Debug {
     fn wrap(&self, pos: &mut DVector<D>);
 }
 

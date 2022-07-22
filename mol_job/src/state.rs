@@ -1,9 +1,9 @@
 #![allow(unused, dead_code)]
+use d_vector::{DVector, Real};
 use std::{
     cell::{Cell, RefCell, RefMut},
     fmt::Debug,
 };
-use d_vector::{DVector, Real};
 
 pub trait MolecularState<const D: usize>: Debug {
     fn get_pos(&self) -> RefMut<Vec<DVector<D>>>;

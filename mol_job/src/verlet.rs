@@ -1,10 +1,10 @@
 #![allow(unused, dead_code)]
 
-use std::{cell::RefMut, ops::AddAssign};
-use d_vector::{DVector, Real};
 use crate::{
     boundaries::BoundaryConditions, potential::PotentialEnergy, prop::Props, state::MolecularState,
 };
+use d_vector::{DVector, Real};
+use std::{cell::RefMut, ops::AddAssign};
 
 pub fn single_step<const D: usize>(
     delta_t: Real,

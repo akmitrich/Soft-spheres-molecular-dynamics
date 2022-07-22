@@ -1,8 +1,8 @@
 #![allow(unused, dead_code)]
 
-use std::ops::AddAssign;
-use d_vector::{DVector, Real};
 use crate::boundaries::Region;
+use d_vector::{DVector, Real};
+use std::ops::AddAssign;
 
 pub fn cubic_lattice<const D: usize>(n_mol: usize, density: Real) -> (Region<D>, Vec<DVector<D>>) {
     let vol = n_mol as Real / density;

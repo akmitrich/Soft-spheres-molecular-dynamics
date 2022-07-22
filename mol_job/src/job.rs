@@ -1,17 +1,18 @@
 #![allow(unused, dead_code)]
 
+use crate::{
+    boundaries::{BoundaryConditions, Region},
+    lennard_jones::LennardJones,
+    potential::PotentialEnergy,
+    prop::{Props, TrivialProps},
+    state::{MolecularState, State},
+    verlet,
+};
+use d_vector::{DVector, Real};
 use std::{
     cell::{Cell, RefCell, RefMut},
     ops::AddAssign,
 };
-use crate::{
-    boundaries::{BoundaryConditions, Region},
-    potential::PotentialEnergy,
-    prop::{Props, TrivialProps},
-    state::{MolecularState, State},
-    verlet, lennard_jones::LennardJones,
-};
-use d_vector::{DVector, Real};
 
 #[derive(Debug)]
 pub struct Job<const D: usize> {
@@ -52,10 +53,10 @@ impl<const D: usize> Job<D> {
             );
             self.update_props();
             self.state.sync(self.time_now());
-            
+
             if self.step_count() >= step_limit {
                 self.more_cycles = false;
-            }    
+            }
         }
         self.step_count() - step_limit
     }
@@ -69,8 +70,17 @@ impl<const D: usize> Job<D> {
     }
 
     fn update_props(&self) {
-        self.props
-            .eval_props(self.potential.as_ref(), &self.state.get_pos(), &self.state.get_vel());
+        println!(
+            "{}. u = {}, v = {}",
+            self.step_count(),
+            self.potential.u_sum(),
+            self.potential.virial_sum()
+        );
+        self.props.eval_props(
+            self.potential.as_ref(),
+            &self.state.get_pos(),
+            &self.state.get_vel(),
+        );
         self.props.accum_props();
         if self.props.need_avg(self.step_count()) {
             self.props.avg_props();
