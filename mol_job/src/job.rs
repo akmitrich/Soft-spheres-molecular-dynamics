@@ -109,6 +109,11 @@ impl<const D: usize> JobSetup<D> {
         self
     }
 
+    pub fn state(mut self, state: impl MolecularState<D> + 'static) -> Self {
+        self.0.state = Box::new(state);
+        self
+    }
+
     pub fn potential(mut self, potential: impl PotentialEnergy<D> + 'static) -> Self {
         self.0.potential = Box::new(potential);
         self

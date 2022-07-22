@@ -5,6 +5,7 @@ use d_vector::DVector;
 use mol_job::initial_state;
 use mol_job::job::{Job, JobSetup};
 use mol_job::lennard_jones::LennardJones;
+use mol_job::track::Track;
 
 fn main() {
     let v = DVector::from([1., 0.22, 1e-6]) + DVector::from([0.4, 0.01, 0.0]);
@@ -32,6 +33,7 @@ fn main() {
 fn create_job() -> Job<3> {
     let (boundaries, pos) = initial_state::cubic_lattice::<3>(1000, 0.8);
     JobSetup::build()
+        .state(Track::default())
         .boundaries(boundaries)
         .init_pos(pos)
         .random_vel(1.)

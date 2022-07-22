@@ -5,6 +5,7 @@ pub mod lennard_jones;
 pub mod potential;
 pub mod prop;
 pub mod state;
+pub mod track;
 pub mod verlet;
 
 #[cfg(test)]
