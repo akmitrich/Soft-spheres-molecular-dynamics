@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     cell::{Cell, RefCell, RefMut},
     fs::{File, OpenOptions},
+    io::{Write, BufReader, BufRead}, path::Path,
 };
 
 #[derive(Debug, Serialize)]
@@ -15,7 +16,7 @@ pub struct Track {
     vel: RefCell<Vec<DVector<3>>>,
     acc: RefCell<Vec<DVector<3>>>,
     #[serde(skip_serializing)]
-    output: File,
+    output: RefCell<File>,
 }
 
 impl Default for Track {
@@ -23,6 +24,7 @@ impl Default for Track {
         let file = OpenOptions::new()
             .write(true)
             .append(true)
+            .create(true)
             .open("track.txt")
             .unwrap();
         Self {
@@ -30,7 +32,7 @@ impl Default for Track {
             pos: Default::default(),
             vel: Default::default(),
             acc: Default::default(),
-            output: file,
+            output: RefCell::new(file),
         }
     }
 }
@@ -51,6 +53,24 @@ impl MolecularState<3> for Track {
     fn sync(&self, time_now: Real) {
         self.time_now.set(time_now);
         let json = serde_json::to_string(self).unwrap();
-        println!("{}", json);
+        writeln!(self.output.borrow_mut(), "{}", json);
+    }
+}
+
+impl Track {
+    pub fn restore_from<P: AsRef<Path>>(path: P) -> Self {
+        match OpenOptions::new()
+            .read(true)
+            .open(path) {
+                Ok(input) => {
+                    let mut last_line = String::new();
+                    for line in BufReader::new(input).lines().flatten() {
+                        last_line = line;
+                    }
+                    println!("Restore Track from: {}", last_line);
+                },
+                Err(_) => todo!(),
+            }
+        Self::default()
     }
 }

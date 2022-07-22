@@ -8,21 +8,14 @@ use mol_job::lennard_jones::LennardJones;
 use mol_job::track::Track;
 
 fn main() {
-    let v = DVector::from([1., 0.22, 1e-6]) + DVector::from([0.4, 0.01, 0.0]);
-    println!("Hello, {:?}", v.components());
-
     let mut j = create_job();
-    j.run(5);
-    fs::write(
-        "w1.txt",
-        format!("World 1: {:?}, time now {}", j, j.time_now()),
-    );
-    println!("Run 1 complete. vel_sum = {:?}", j.vel_sum());
-    j.run(5);
     fs::write(
         "w2.txt",
-        format!("World 2: {:?}, time now {}", j, j.time_now()),
+        format!("Initial state: {:?}, time now {}", j, j.time_now()),
     );
+    j.run(5);
+    println!("Run 1 complete. vel_sum = {:?}", j.vel_sum());
+    j.run(5);
     println!(
         "Run 2 complete. vel_sum = {:?}, {}",
         j.vel_sum(),
@@ -33,7 +26,7 @@ fn main() {
 fn create_job() -> Job<3> {
     let (boundaries, pos) = initial_state::cubic_lattice::<3>(10, 0.8);
     JobSetup::build()
-        .state(Track::default())
+        .state(Track::restore_from("track.txt"))
         .boundaries(boundaries)
         .init_pos(pos)
         .random_vel(1.)
