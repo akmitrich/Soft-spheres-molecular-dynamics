@@ -1,3 +1,2 @@
 target
-w1.txt
-w2.txt
+*.txt

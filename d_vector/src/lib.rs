@@ -1,9 +1,15 @@
 #![allow(unused, dead_code)]
-use std::ops::{Add, AddAssign, Mul, MulAssign};
+use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign};
 
 use rand::Rng;
 
 pub type Real = f32;
+
+pub fn reset_array<const D: usize>(vectors: &mut [DVector<D>]) {
+    for vector in vectors.iter_mut() {
+        *vector = Default::default();
+    }
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct DVector<const D: usize> {
@@ -121,6 +127,24 @@ impl<const D: usize> Mul<&DVector<D>> for Real {
             c.mul_assign(self);
         }
         Self::Output { components }
+    }
+}
+
+impl<const D: usize> SubAssign<&Self> for DVector<D> {
+    fn sub_assign(&mut self, rhs: &Self) {
+        for (i, c) in self.components.iter_mut().enumerate() {
+            c.sub_assign(rhs.components()[i]);
+        }
+    }
+}
+
+impl<const D: usize> Sub<&DVector<D>> for &DVector<D> {
+    type Output = DVector<D>;
+
+    fn sub(self, rhs: &DVector<D>) -> Self::Output {
+        let mut sub = self.clone();
+        sub -= rhs;
+        sub
     }
 }
 

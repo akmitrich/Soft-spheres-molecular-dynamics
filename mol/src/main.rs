@@ -11,13 +11,13 @@ fn main() {
     println!("Hello, {:?}", v.components());
 
     let mut j = create_job();
-    j.run(100);
+    j.run(5);
     fs::write(
         "w1.txt",
         format!("World 1: {:?}, time now {}", j, j.time_now()),
     );
     println!("Run 1 complete. vel_sum = {:?}", j.vel_sum());
-    j.run(100);
+    j.run(5);
     fs::write(
         "w2.txt",
         format!("World 2: {:?}, time now {}", j, j.time_now()),
@@ -35,6 +35,6 @@ fn create_job() -> Job<3> {
         .boundaries(boundaries)
         .init_pos(pos)
         .random_vel(1.)
-        .potential(LennardJones::new(3.))
+        .potential(LennardJones::new(2.5))
         .job()
 }
