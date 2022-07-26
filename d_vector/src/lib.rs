@@ -1,7 +1,7 @@
 #![allow(unused, dead_code)]
 use rand::Rng;
-use serde::ser::{Serialize, SerializeSeq, Serializer};
-use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
+use serde::{ser::{Serialize, SerializeSeq, Serializer}, de::{self, Visitor, SeqAccess}, Deserialize};
+use std::{ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign}, fmt};
 
 pub type Real = f32;
 
@@ -57,19 +57,6 @@ impl<const D: usize> From<&[Real; D]> for DVector<D> {
 impl<const D: usize> From<[Real; D]> for DVector<D> {
     fn from(components: [Real; D]) -> Self {
         Self { components }
-    }
-}
-
-impl<const D: usize> Serialize for DVector<D> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut seq = serializer.serialize_seq(Some(D))?;
-        for e in self.components.iter() {
-            seq.serialize_element(e)?;
-        }
-        seq.end()
     }
 }
 
@@ -213,5 +200,52 @@ mod tests {
         assert_eq!(77., &b * &b);
         assert_eq!(&a * &a, a.square_length());
         assert_eq!(&b * &b, b.square_length());
+    }
+}
+
+impl<const D: usize> Serialize for DVector<D> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut seq = serializer.serialize_seq(Some(D))?;
+        for e in self.components.iter() {
+            seq.serialize_element(e)?;
+        }
+        seq.end()
+    }
+}
+
+struct DVectorVisitor<const D: usize>;
+
+impl<'de, const D: usize> Visitor<'de> for DVectorVisitor<D> {
+    type Value = DVector<D>;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        let expect = format!("an array of {} floats", D);
+        formatter.write_str(&expect)
+    }
+
+    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+        where
+            A: SeqAccess<'de>, {
+        let mut components = [0 as Real; D];
+        for c in components.iter_mut() {
+            let val: Option<Real> = seq.next_element()?;
+            if let Some(component) = val {
+                *c = component;
+            } else {
+                return Err(de::Error::invalid_length(D, &self));
+            }
+        }
+        Ok(DVector::from(components))
+    }
+}
+
+impl<'de, const D: usize> Deserialize<'de> for DVector<D> {
+    fn deserialize<De>(deserializer: De) -> Result<Self, De::Error>
+    where
+        De: serde::Deserializer<'de> {
+        deserializer.deserialize_seq(DVectorVisitor)
     }
 }

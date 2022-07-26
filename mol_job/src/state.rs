@@ -1,5 +1,6 @@
 #![allow(unused, dead_code)]
 use d_vector::{DVector, Real};
+use serde::{Serialize, Deserialize};
 use std::{
     cell::{Cell, RefCell, RefMut},
     fmt::Debug,
@@ -12,7 +13,7 @@ pub trait MolecularState<const D: usize>: Debug {
     fn sync(&self, time_now: Real) {}
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct State<const D: usize> {
     pos: RefCell<Vec<DVector<D>>>,
     vel: RefCell<Vec<DVector<D>>>,
