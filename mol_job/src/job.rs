@@ -70,12 +70,12 @@ impl<const D: usize> Job<D> {
     }
 
     fn update_props(&self) {
-        println!(
-            "{}. u = {}, v = {}",
+/*         println!(
+            "{}. u = {}, v = {} <--- update_props()",
             self.step_count(),
             self.potential.u_sum(),
             self.potential.virial_sum()
-        );
+        );*/
         self.props.eval_props(
             self.potential.as_ref(),
             &self.state.get_pos(),
