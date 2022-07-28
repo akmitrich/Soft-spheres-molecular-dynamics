@@ -44,7 +44,7 @@ impl MolecularState<3> for Track {
 
     fn sync(&self, time_now: Real) {
         let json = serde_json::to_string(&self.inner).unwrap();
-        writeln!(self.output.borrow_mut(), "{}", json);
+        writeln!(self.output.borrow_mut(), "{}. {}", time_now, json);
     }
 }
 
@@ -58,7 +58,12 @@ impl Track {
                     for line in BufReader::new(input).lines().flatten() {
                         last_line = line;
                     }
-                    println!("Restore Track from: {}", last_line);
+                    let mut data = String::new();
+                    for item in last_line.split(". ") {
+                        data = String::from(item);
+                    }
+                    let data: State<3> = serde_json::from_str(&data).unwrap();
+                    println!("Restore Track from: {:?}", data);
                 },
                 Err(_) => todo!(),
             }
