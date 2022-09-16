@@ -16,15 +16,9 @@ pub struct Track {
 
 impl Default for Track {
     fn default() -> Self {
-        let file = OpenOptions::new()
-            .write(true)
-            .append(true)
-            .create(true)
-            .open("track.txt")
-            .unwrap();
         Self {
             inner: State::default(),
-            output: RefCell::new(file),
+            output: RefCell::new(open_track().unwrap()),
         }
     }
 }
@@ -49,24 +43,40 @@ impl MolecularState<3> for Track {
 }
 
 impl Track {
-    pub fn restore_from<P: AsRef<Path>>(path: P) -> Self {
-        match OpenOptions::new()
+    pub fn restore_from<P: AsRef<Path>>(path: P) -> Result<Self, Self> {
+        let input = OpenOptions::new()
             .read(true)
-            .open(path) {
-                Ok(input) => {
-                    let mut last_line = String::new();
-                    for line in BufReader::new(input).lines().flatten() {
-                        last_line = line;
-                    }
-                    let mut data = String::new();
-                    for item in last_line.split(". ") {
-                        data = String::from(item);
-                    }
-                    let data: State<3> = serde_json::from_str(&data).unwrap();
-                    println!("Restore Track from: {:?}", data);
-                },
-                Err(_) => todo!(),
-            }
-        Self::default()
+            .open(path)
+            .map_err(|_| Self::default())?;                     
+        let mut last_line = last_line_of_file(input)
+            .ok_or_else(Self::default)?;
+        let end_of_track = last_line.split(". ").last().unwrap_or_default();
+        if end_of_track.is_empty() {
+            return Err(Self::default());
+        }
+        let last_state: State<3> = serde_json::from_str(end_of_track)
+            .map_err(|_| Self::default())?;
+        Ok(Self {
+            inner: last_state,
+            output: RefCell::new(
+                open_track()
+                    .map_err(|_| Self::default())?
+            ),
+        })
     }
+}
+
+fn open_track() -> std::io::Result<File> {
+    OpenOptions::new()
+            .write(true)
+            .append(true)
+            .create(true)
+            .open("track.txt")
+}
+
+pub(crate) fn last_line_of_file(f: File) -> Option<String> {
+    BufReader::new(f)
+        .lines()
+        .flatten()
+        .last()
 }
