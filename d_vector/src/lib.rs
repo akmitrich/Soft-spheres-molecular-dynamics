@@ -1,7 +1,14 @@
 #![allow(unused, dead_code)]
 use rand::Rng;
-use serde::{ser::{Serialize, SerializeSeq, Serializer}, de::{self, Visitor, SeqAccess}, Deserialize};
-use std::{ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign}, fmt};
+use serde::{
+    de::{self, SeqAccess, Visitor},
+    ser::{Serialize, SerializeSeq, Serializer},
+    Deserialize,
+};
+use std::{
+    fmt,
+    ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign},
+};
 
 pub type Real = f32;
 
@@ -227,8 +234,9 @@ impl<'de, const D: usize> Visitor<'de> for DVectorVisitor<D> {
     }
 
     fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
-        where
-            A: SeqAccess<'de>, {
+    where
+        A: SeqAccess<'de>,
+    {
         let mut components = [0 as Real; D];
         for c in components.iter_mut() {
             let val: Option<Real> = seq.next_element()?;
@@ -245,7 +253,8 @@ impl<'de, const D: usize> Visitor<'de> for DVectorVisitor<D> {
 impl<'de, const D: usize> Deserialize<'de> for DVector<D> {
     fn deserialize<De>(deserializer: De) -> Result<Self, De::Error>
     where
-        De: serde::Deserializer<'de> {
+        De: serde::Deserializer<'de>,
+    {
         deserializer.deserialize_seq(DVectorVisitor)
     }
 }

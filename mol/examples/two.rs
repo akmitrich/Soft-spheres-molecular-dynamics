@@ -1,11 +1,11 @@
 use std::cell::RefMut;
-use std::ops::{DerefMut};
+use std::ops::DerefMut;
 
 use d_vector::{DVector, Real};
-use mol_job::job::JobSetup;
-use mol_job::state::{MolecularState, State};
 use mol_job::boundaries::Region;
+use mol_job::job::JobSetup;
 use mol_job::lennard_jones::LennardJones;
+use mol_job::state::{MolecularState, State};
 
 #[derive(Debug)]
 struct TwoState {
@@ -51,7 +51,8 @@ impl MolecularState<2> for TwoState {
         assert_eq!(left_velocity, &((-1.) * right_velocity));
         assert_eq!(left_acceleration, &((-1.) * right_acceleration));
         println!(
-            "time = {}. position {:?} ||| velocity {:?} ||| acceleration {:?}", time_now, 
+            "time = {}. position {:?} ||| velocity {:?} ||| acceleration {:?}",
+            time_now,
             left_position.components(),
             left_velocity.components(),
             left_acceleration.components()

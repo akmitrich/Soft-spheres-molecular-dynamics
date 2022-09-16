@@ -5,7 +5,8 @@ use d_vector::{DVector, Real};
 use std::{
     cell::{Cell, RefCell, RefMut},
     fs::{File, OpenOptions},
-    io::{Write, BufReader, BufRead}, path::Path,
+    io::{BufRead, BufReader, Write},
+    path::Path,
 };
 
 #[derive(Debug)]
@@ -44,39 +45,35 @@ impl MolecularState<3> for Track {
 
 impl Track {
     pub fn restore_from<P: AsRef<Path>>(path: P) -> Result<Self, Self> {
-        let input = OpenOptions::new()
-            .read(true)
-            .open(path)
-            .map_err(|_| Self::default())?;                     
-        let mut last_line = last_line_of_file(input)
-            .ok_or_else(Self::default)?;
+        let input = OpenOptions::new().read(true).open(path)?;
+        let mut last_line = last_line_of_file(input).ok_or_else(Self::default)?;
         let end_of_track = last_line.split(". ").last().unwrap_or_default();
         if end_of_track.is_empty() {
             return Err(Self::default());
         }
-        let last_state: State<3> = serde_json::from_str(end_of_track)
-            .map_err(|_| Self::default())?;
+        let last_state: State<3> =
+            serde_json::from_str(end_of_track).map_err(|_| Self::default())?;
         Ok(Self {
             inner: last_state,
-            output: RefCell::new(
-                open_track()
-                    .map_err(|_| Self::default())?
-            ),
+            output: RefCell::new(open_track()?),
         })
+    }
+}
+
+impl From<std::io::Error> for Track {
+    fn from(_: std::io::Error) -> Self {
+        Self::default()
     }
 }
 
 fn open_track() -> std::io::Result<File> {
     OpenOptions::new()
-            .write(true)
-            .append(true)
-            .create(true)
-            .open("track.txt")
+        .write(true)
+        .append(true)
+        .create(true)
+        .open("track.txt")
 }
 
 pub(crate) fn last_line_of_file(f: File) -> Option<String> {
-    BufReader::new(f)
-        .lines()
-        .flatten()
-        .last()
+    BufReader::new(f).lines().flatten().last()
 }

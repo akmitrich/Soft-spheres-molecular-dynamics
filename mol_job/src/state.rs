@@ -1,6 +1,6 @@
 #![allow(unused, dead_code)]
 use d_vector::{DVector, Real};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::{
     cell::{Cell, RefCell, RefMut},
     fmt::Debug,

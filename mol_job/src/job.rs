@@ -70,7 +70,7 @@ impl<const D: usize> Job<D> {
     }
 
     fn update_props(&self) {
-/*         println!(
+        /*         println!(
             "{}. u = {}, v = {} <--- update_props()",
             self.step_count(),
             self.potential.u_sum(),
