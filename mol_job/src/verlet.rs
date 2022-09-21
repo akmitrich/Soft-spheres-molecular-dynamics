@@ -33,20 +33,21 @@ pub fn apply_boundary_conditions<const D: usize>(
 }
 
 pub fn leapfrog_begin<const D: usize>(
-    delat_t: Real,
+    delta_t: Real,
     pos: &mut [DVector<D>],
     vel: &mut [DVector<D>],
     acc: &[DVector<D>],
 ) {
     assert_eq!(pos.len(), vel.len());
-    calc_vel_for_half_step(delat_t, vel, acc);
+    calc_vel_for_half_step(delta_t, vel, acc);
     for (position, velocity) in pos.iter_mut().zip(vel.iter()) {
-        position.add_assign(delat_t * velocity);
+        position.add_assign(delta_t * velocity);
     }
 }
 
-pub fn leapfrog_end<const D: usize>(delat_t: Real, vel: &mut [DVector<D>], acc: &[DVector<D>]) {
-    calc_vel_for_half_step(delat_t, vel, acc);
+pub fn leapfrog_end<const D: usize>(delta_t: Real, vel: &mut [DVector<D>], acc: &[DVector<D>]) {
+    assert_eq!(vel.len(), acc.len());
+    calc_vel_for_half_step(delta_t, vel, acc);
 }
 
 fn calc_vel_for_half_step<const D: usize>(
@@ -54,7 +55,6 @@ fn calc_vel_for_half_step<const D: usize>(
     vel: &mut [DVector<D>],
     acc: &[DVector<D>],
 ) {
-    assert_eq!(vel.len(), acc.len());
     let half_delta_t = delta_t / 2.;
     for (velocity, acceleration) in vel.iter_mut().zip(acc.iter()) {
         velocity.add_assign(half_delta_t * acceleration);
