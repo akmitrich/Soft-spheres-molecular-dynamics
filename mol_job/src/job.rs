@@ -47,7 +47,9 @@ impl<const D: usize> Job<D> {
             self.advance_step_count();
             verlet::single_step(
                 self.delta_t(),
-                self.state.as_ref(),
+                &mut self.state.get_pos(),
+                &mut self.state.get_vel(),
+                &mut self.state.get_acc(),
                 self.boundaries.as_ref(),
                 self.potential.as_ref(),
             );

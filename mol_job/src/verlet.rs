@@ -8,19 +8,16 @@ use std::{cell::RefMut, ops::AddAssign};
 
 pub fn single_step<const D: usize>(
     delta_t: Real,
-    state: &dyn MolecularState<D>,
+    pos: &mut [DVector<D>],
+    vel: &mut [DVector<D>],
+    acc: &mut [DVector<D>],
     boundaries: &dyn BoundaryConditions<D>,
     potential_energy: &dyn PotentialEnergy<D>,
 ) {
-    leapfrog_begin(
-        delta_t,
-        &mut state.get_pos(),
-        &mut state.get_vel(),
-        &state.get_acc(),
-    );
-    apply_boundary_conditions(boundaries, &mut state.get_pos());
-    potential_energy.compute_forces(&state.get_pos(), &mut state.get_acc(), boundaries);
-    leapfrog_end(delta_t, &mut state.get_vel(), &state.get_acc());
+    leapfrog_begin(delta_t, pos, vel, acc);
+    apply_boundary_conditions(boundaries, pos);
+    potential_energy.compute_forces(pos, acc, boundaries);
+    leapfrog_end(delta_t, vel, acc);
 }
 
 pub fn apply_boundary_conditions<const D: usize>(

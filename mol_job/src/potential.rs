@@ -11,8 +11,12 @@ pub trait PotentialEnergy<const D: usize>: Debug {
         acc: &mut [DVector<D>],
         boundaries: &dyn BoundaryConditions<D>,
     );
-    fn u_sum(&self) -> Real;
-    fn virial_sum(&self) -> Real;
+    fn u_sum(&self) -> Real {
+        0.0
+    }
+    fn virial_sum(&self) -> Real {
+        0.0
+    }
 }
 
 #[derive(Debug, Default)]
@@ -26,11 +30,4 @@ impl<const D: usize> PotentialEnergy<D> for NoInteraction {
     ) {
     }
 
-    fn u_sum(&self) -> Real {
-        0.0
-    }
-
-    fn virial_sum(&self) -> Real {
-        0.0
-    }
 }

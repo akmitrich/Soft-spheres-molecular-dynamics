@@ -1,23 +1,23 @@
 #![allow(unused, dead_code)]
 
-use std::{cell::Cell, fs};
-
+use std::sync::atomic::Ordering;
 use crate::{boundaries::BoundaryConditions, potential::PotentialEnergy};
 use d_vector::{reset_array, DVector, Real};
+use atomic_float::AtomicF32;
 
 #[derive(Debug)]
 pub struct LennardJones {
     r_cut: Real,
-    u_sum: Cell<Real>,
-    v_sum: Cell<Real>,
+    u_sum: AtomicF32,
+    v_sum: AtomicF32,
 }
 
 impl Default for LennardJones {
     fn default() -> Self {
         Self {
             r_cut: 2.5,
-            u_sum: Cell::new(0.0),
-            v_sum: Cell::new(0.0),
+            u_sum: AtomicF32::new(0.0),
+            v_sum: AtomicF32::new(0.0),
         }
     }
 }
@@ -59,16 +59,16 @@ impl<const D: usize> PotentialEnergy<D> for LennardJones {
                 }
             }
         }
-        self.u_sum.set(u_sum);
-        self.v_sum.set(v_sum);
+        self.u_sum.store(u_sum, Ordering::SeqCst);
+        self.v_sum.store(v_sum, Ordering::SeqCst);
     }
 
     fn u_sum(&self) -> Real {
-        self.u_sum.get()
+        self.u_sum.load(Ordering::SeqCst)
     }
 
     fn virial_sum(&self) -> Real {
-        self.v_sum.get()
+        self.v_sum.load(Ordering::SeqCst)
     }
 }
 
